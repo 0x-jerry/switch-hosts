@@ -1,5 +1,6 @@
 import { defineComponent } from 'vue'
 import { ConfigList } from './components/ConfigList'
+import { Editor } from './editor/Editor'
 
 export const App = defineComponent({
   setup() {
@@ -14,7 +15,9 @@ export const App = defineComponent({
               <el-footer height='25px'>Footer</el-footer>
             </el-container>
           </el-aside>
-          <el-main>Main</el-main>
+          <div class='full'>
+            <Editor />
+          </div>
         </el-container>
       )
     }
