@@ -43,6 +43,10 @@ function toggleLineComment(range: IRange, editor: editor.IStandaloneCodeEditor) 
 
   const code = source.split(/\n/g)[range.startLineNumber - 1]
 
+  if (!code.trim().length) {
+    return
+  }
+
   const hasHash = code.trim().startsWith('#')
 
   const editAction: editor.IIdentifiedSingleEditOperation = {
