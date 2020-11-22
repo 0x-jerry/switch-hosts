@@ -86,10 +86,12 @@ export const Editor = defineComponent({
       })
 
       ed.onDidChangeModelContent(e => {
-        const selectedNode = actions.getSelectedNode()!
-        const changed = selectedNode.source !== ed.getValue()
+        const selectedNode = actions.getSelectedNode()
 
-        store.saved = store.saved && !changed
+        if (selectedNode) {
+          const changed = selectedNode.source !== ed.getValue()
+          store.saved = store.saved && !changed
+        }
       })
     })
 

@@ -7,17 +7,21 @@ import { getConfig } from './ipc/ipcRenderer'
 import { store } from './store'
 import { title } from './const'
 
-watchEffect(() => {
-  document.title = store.saved ? title : title + ' *'
-})
+async function main() {
+  const conf = await getConfig()
 
-getConfig().then(conf => {
   Object.keys(conf).forEach(key => {
     // @ts-ignore
     store[key] = conf[key]
   })
 
+  watchEffect(() => {
+    document.title = store.saved ? title : title + ' *'
+  })
+
   createApp(App)
     .use(ElementUI)
     .mount('#app')
-})
+}
+
+main()
