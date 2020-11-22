@@ -9,7 +9,7 @@ export const App = defineComponent({
         <el-container style={{ height: '100%' }}>
           <el-aside width='240px'>
             <el-container style={{ height: '100%' }}>
-              <el-main>
+              <el-main style={{ padding: '0' }}>
                 <ConfigList />
               </el-main>
               <el-footer height='25px'>Footer</el-footer>

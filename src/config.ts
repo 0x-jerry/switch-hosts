@@ -1,32 +1,62 @@
+import { log } from 'debug'
 import fs from 'fs-extra'
 import { confDir, confPath } from './const'
 
-export interface ConfigNode {
+export interface ConfigItem {
   id: string
   label: string
-  checked: boolean
-  source: string
+  checked?: boolean
 }
 
-export interface ConfigSchema {
+export interface ConfigNode extends ConfigItem {
+  source: string
+  readonly: boolean
+}
+
+export interface ConfigSchema extends ConfigItem {
   mode: 'single' | 'multi'
   children: ConfigNode[]
 }
 
+export type ConfigHostItem = ConfigSchema | ConfigNode
+
 export interface Config {
   version: string
-  hosts: (ConfigSchema | ConfigNode)[]
+  selected: string
+  hosts: ConfigHostItem[]
 }
 
-const defaultConf: Config = {
-  version: '1.0.0',
-  hosts: []
+const defaultConfig: () => Config = () => {
+  const hosts = fs.readFileSync('/etc/hosts', { encoding: 'utf-8' })
+
+  const node: ConfigNode = {
+    id: 'hosts',
+    label: 'hosts',
+    source: hosts,
+    readonly: true
+  }
+
+  return {
+    version: '1.0.0',
+    selected: 'hosts',
+    hosts: [node]
+  }
+}
+
+export function isSchema(c: ConfigSchema | ConfigNode): c is ConfigSchema {
+  return !!(c as ConfigSchema).mode
+}
+
+export function isNode(c: ConfigSchema | ConfigNode): c is ConfigNode {
+  return !isSchema(c)
 }
 
 export async function saveConfig(conf: Config) {
   await fs.ensureDir(confDir)
 
-  return fs.writeFile(confPath, JSON.stringify(conf, null, 2))
+  await fs.writeFile(confPath, JSON.stringify(conf, null, 2))
+
+  log('Save config: \n%o', conf)
 }
 
 const migrateStrategy: Record<string, (conf: Config) => Config> = {
@@ -49,19 +79,34 @@ function migrateConfig(conf: Config): Config {
 }
 
 export async function getConfig(): Promise<Config> {
-  if (await fs.pathExists(confPath)) {
+  const defaultConf = defaultConfig()
+
+  if (!(await fs.pathExists(confPath))) {
+    log('Config is not exist: \n%o', defaultConf)
     return defaultConf
   }
 
-  const txt = await fs.readFile(confPath, { encoding: 'utf-8' })
-
   try {
-    const conf: Config = JSON.parse(txt)
+    const txt = await fs.readFile(confPath, { encoding: 'utf-8' })
+    let conf: Config = JSON.parse(txt)
+
     if (typeof conf.version !== 'string') {
       throw new Error('Wrong config format')
     }
-    return migrateConfig(conf)
+
+    conf = migrateConfig(conf)
+
+    const idx = conf.hosts.findIndex(h => h.id === 'hosts')
+
+    if (idx >= 0) {
+      conf.hosts[idx] = defaultConf.hosts[0]
+    }
+
+    log('Config: \n%o', conf)
+    return conf
   } catch (error) {
+    log('Load config error: \n%o', error)
+
     saveConfig(defaultConf)
 
     return defaultConf

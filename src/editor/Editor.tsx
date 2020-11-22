@@ -1,39 +1,8 @@
-import { defineComponent, onMounted, reactive } from 'vue'
+import { defineComponent, onMounted, reactive, toRaw, watchEffect } from 'vue'
 import { editor, IRange } from 'monaco-editor'
 import './lang-hosts'
 import { saveConfig } from '../ipc/ipcRenderer'
-
-function getCodes() {
-  return `# local_dev
-127.0.0.1 p99999.kuaidizs.cn # tb
-127.0.0.1 p88888.kuaidizs.cn # tb
-127.0.0.1 p51.kuaidizs.cn # tb
-
-127.0.0.1 pddtest1.kuaidizs.cn # pdd
-
-127.0.0.1 ksshop.kuaidizs.cn # kssd
-127.0.0.1 jyd.kuaidizs.cn
-
-127.0.0.1 handorder.kuaidizs.cn
-127.0.0.1 handpddg.kuaidizs.cn
-127.0.0.1 pddhandorder.kuaidizs.cn
-
-127.0.0.1 mt.kuaidizs.cn
-127.0.0.1 alin.kuaidizs.cn
-127.0.0.1 zz.kuaidizs.cn
-127.0.0.1 jdn.kuaidizs.cn
-127.0.0.1 vdiantest.kuaidizs.cn
-127.0.0.1 yz.kuaidizs.cn
-127.0.0.1 fxg.kuaidizs.cn
-127.0.0.1 mgj1.kuaidizs.cn
-127.0.0.1 vdiantest.kuaidizs.cn
-127.0.0.1 ktt1.kuaidizs.cn
-
-127.0.0.1 online.qnfh.superboss.cc
-127.0.0.1 online.speedprint.superboss.cc
-127.0.0.1 test.speedprint.superboss.cc
-`
-}
+import { actions, store } from '../store'
 
 function isClickLineNumber(e: editor.IEditorMouseEvent) {
   return e.target.element?.classList.contains('line-numbers')
@@ -69,28 +38,63 @@ export const Editor = defineComponent({
       el: null as any
     })
 
+    let ed: editor.IStandaloneCodeEditor
+
+    function updateSource() {
+      const selectedNode = actions.getSelectedNode()
+
+      if (selectedNode && ed) {
+        if (selectedNode.source !== ed.getValue()) {
+          ed.setValue(selectedNode.source)
+        }
+
+        ed.updateOptions({
+          readOnly: selectedNode.readonly
+        })
+
+        ed.setScrollTop(0)
+      }
+    }
+
     onMounted(() => {
-      const ed = editor.create(data.el, {
+      ed = editor.create(data.el, {
         language: 'hosts',
         theme: 'hosts',
         selectOnLineNumbers: false
       })
 
-      ed.setValue(getCodes())
+      updateSource()
 
       ed.onMouseDown(e => {
         const range = e.target.range
 
         if (isClickLineNumber(e) && range) {
-          toggleLineComment(range, ed)
+          toggleLineComment(range, ed!)
         }
       })
 
-      ed.onKeyDown(e => {
+      ed.onKeyDown(async e => {
         if (e.browserEvent.key === 's' && e.metaKey) {
-          saveConfig()
+          const selectedNode = actions.getSelectedNode()
+          if (selectedNode) {
+            selectedNode.source = ed.getValue()
+          }
+
+          await saveConfig(toRaw(store))
+          document.title = 'switch-hosts'
         }
       })
+
+      ed.onDidChangeModelContent(e => {
+        const selectedNode = actions.getSelectedNode()!
+        const changed = selectedNode.source !== ed.getValue()
+
+        document.title = 'switch-hosts' + (changed ? ' *' : '')
+      })
+    })
+
+    watchEffect(() => {
+      updateSource()
     })
 
     return () => {
