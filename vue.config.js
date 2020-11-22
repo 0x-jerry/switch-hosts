@@ -8,6 +8,11 @@ const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 const config = {
   chainWebpack(ctx) {
     ctx.plugin('monaco-editor').use(MonacoWebpackPlugin)
+  },
+  pluginOptions: {
+    electronBuilder: {
+      nodeIntegration: true
+    }
   }
 }
 
