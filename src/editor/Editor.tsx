@@ -45,8 +45,6 @@ export const Editor = defineComponent({
 
       if (selectedNode && ed) {
         if (selectedNode.source !== ed.getValue()) {
-          console.log(selectedNode.source, ed.getValue())
-
           ed.setValue(selectedNode.source)
         }
 
