@@ -1,5 +1,5 @@
-import { Config } from '../config'
 import { ipcRenderer } from 'electron'
+import { Config } from '../define'
 import { IPC_EVENTS } from './enum'
 
 export function saveConfig(conf: Config) {

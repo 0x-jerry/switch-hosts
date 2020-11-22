@@ -1,6 +1,7 @@
 import { defineComponent } from 'vue'
-import { ConfigHostItem, isNode } from '../config'
-import { store } from '@/store'
+import { isNode } from '../config'
+import { ConfigHostItem } from '../define'
+import { store } from '../store'
 
 const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
 

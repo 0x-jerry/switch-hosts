@@ -1,9 +1,8 @@
-import { defineComponent, onMounted, reactive, toRaw, watchEffect } from 'vue'
+import { defineComponent, onMounted, reactive, toRaw, watch } from 'vue'
 import { editor, IRange } from 'monaco-editor'
 import './lang-hosts'
 import { saveConfig } from '../ipc/ipcRenderer'
 import { actions, store } from '../store'
-import { title } from '@/const'
 
 function isClickLineNumber(e: editor.IEditorMouseEvent) {
   return e.target.element?.classList.contains('line-numbers')
@@ -46,6 +45,8 @@ export const Editor = defineComponent({
 
       if (selectedNode && ed) {
         if (selectedNode.source !== ed.getValue()) {
+          console.log(selectedNode.source, ed.getValue())
+
           ed.setValue(selectedNode.source)
         }
 
@@ -81,8 +82,8 @@ export const Editor = defineComponent({
             selectedNode.source = ed.getValue()
           }
 
+          store.saved = true
           await saveConfig(toRaw(store))
-          document.title = title
         }
       })
 
@@ -90,13 +91,16 @@ export const Editor = defineComponent({
         const selectedNode = actions.getSelectedNode()!
         const changed = selectedNode.source !== ed.getValue()
 
-        document.title = title + (changed ? ' *' : '')
+        store.saved = store.saved && !changed
       })
     })
 
-    watchEffect(() => {
-      updateSource()
-    })
+    watch(
+      () => store.selected,
+      () => {
+        updateSource()
+      }
+    )
 
     return () => {
       return <div class='editor' ref={el => (data.el = el)}></div>

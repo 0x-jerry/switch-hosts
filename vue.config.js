@@ -1,5 +1,4 @@
 /* eslint-disable */
-
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin')
 
 /**

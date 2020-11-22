@@ -1,5 +1,6 @@
 import { reactive } from 'vue'
-import { Config, ConfigHostItem, ConfigNode, isNode } from './config'
+import { isNode } from './config'
+import { Config, ConfigHostItem, ConfigNode } from './define'
 
 export const store = reactive<Config>({} as any)
 

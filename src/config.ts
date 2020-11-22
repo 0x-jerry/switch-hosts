@@ -1,30 +1,7 @@
 import { log } from 'debug'
 import fs from 'fs-extra'
+import { Config, ConfigNode, ConfigSchema } from './define'
 import { confDir, confPath } from './const'
-
-export interface ConfigItem {
-  id: string
-  label: string
-  checked?: boolean
-}
-
-export interface ConfigNode extends ConfigItem {
-  source: string
-  readonly: boolean
-}
-
-export interface ConfigSchema extends ConfigItem {
-  mode: 'single' | 'multi'
-  children: ConfigNode[]
-}
-
-export type ConfigHostItem = ConfigSchema | ConfigNode
-
-export interface Config {
-  version: string
-  selected: string
-  hosts: ConfigHostItem[]
-}
 
 const defaultConfig: () => Config = () => {
   const hosts = fs.readFileSync('/etc/hosts', { encoding: 'utf-8' })
@@ -38,6 +15,7 @@ const defaultConfig: () => Config = () => {
 
   return {
     version: '1.0.0',
+    saved: true,
     selected: 'hosts',
     hosts: [node]
   }

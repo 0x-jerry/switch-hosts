@@ -1,6 +1,7 @@
 import { ipcMain, IpcMainInvokeEvent } from 'electron'
 import { IPC_EVENTS } from './enum'
-import { Config, getConfig, saveConfig } from '../config'
+import { getConfig, saveConfig } from '../config'
+import { Config } from '../define'
 
 const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
   [IPC_EVENTS.SAVE_CONFIG](_, conf: Config) {
