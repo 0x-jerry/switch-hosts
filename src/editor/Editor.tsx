@@ -3,6 +3,7 @@ import { editor, IRange } from 'monaco-editor'
 import './lang-hosts'
 import { saveConfig } from '../ipc/ipcRenderer'
 import { actions, store } from '../store'
+import { title } from '@/const'
 
 function isClickLineNumber(e: editor.IEditorMouseEvent) {
   return e.target.element?.classList.contains('line-numbers')
@@ -81,7 +82,7 @@ export const Editor = defineComponent({
           }
 
           await saveConfig(toRaw(store))
-          document.title = 'switch-hosts'
+          document.title = title
         }
       })
 
@@ -89,7 +90,7 @@ export const Editor = defineComponent({
         const selectedNode = actions.getSelectedNode()!
         const changed = selectedNode.source !== ed.getValue()
 
-        document.title = 'switch-hosts' + (changed ? ' *' : '')
+        document.title = title + (changed ? ' *' : '')
       })
     })
 

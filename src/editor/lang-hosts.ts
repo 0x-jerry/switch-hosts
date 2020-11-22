@@ -8,8 +8,9 @@ monaco.languages.setMonarchTokensProvider('hosts', {
   tokenizer: {
     root: [
       [/#.*/, 'comment'],
-      [/([0-9]{1,3}\.){3}[0-9]{1,3}(?= +)/, 'ip'],
-      [/(?! +)(\w|\.)+/, 'host']
+      [/([0-9]{1,3}\.){3}[0-9]{1,3}(?=\s+)/, 'ip'],
+      [/(::\d)(?=\s+)/, 'ip'],
+      [/(?!\s+)(\w|\.)+/, 'host']
     ]
   }
 })

@@ -1,17 +1,12 @@
-import { getConfig } from '../ipc/ipcRenderer'
-import { defineComponent, reactive } from 'vue'
-import { Config, ConfigHostItem, isNode } from '../config'
+import { defineComponent } from 'vue'
+import { ConfigHostItem, isNode } from '../config'
 import { store } from '@/store'
+
+const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
 
 export const ConfigList = defineComponent({
   setup() {
-    const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
-
     const clickItem = (node: ConfigHostItem) => {
-      if (hasCheck(node)) {
-        node.checked = !node.checked
-      }
-
       if (isNode(node)) {
         store.selected = node.id
       }
