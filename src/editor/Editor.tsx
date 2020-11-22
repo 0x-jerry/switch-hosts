@@ -1,6 +1,7 @@
 import { defineComponent, onMounted, reactive } from 'vue'
 import { editor, IRange } from 'monaco-editor'
 import './lang-hosts'
+import { saveConfig } from '../ipc/ipcRenderer'
 
 function getCodes() {
   return `# local_dev
@@ -82,6 +83,12 @@ export const Editor = defineComponent({
 
         if (isClickLineNumber(e) && range) {
           toggleLineComment(range, ed)
+        }
+      })
+
+      ed.onKeyDown(e => {
+        if (e.browserEvent.key === 's' && e.metaKey) {
+          saveConfig()
         }
       })
     })
