@@ -3,24 +3,7 @@ import { defineComponent, reactive } from 'vue'
 const data1 = [
   {
     id: 1,
-    label: '一级 1',
-    mode: 'single',
-    children: [
-      {
-        id: 4,
-        label: '二级 1-1',
-        children: [
-          {
-            id: 9,
-            label: '三级 1-1-1'
-          },
-          {
-            id: 10,
-            label: '三级 1-1-2'
-          }
-        ]
-      }
-    ]
+    label: '一级 1'
   },
   {
     id: 2,
@@ -56,16 +39,21 @@ export const ConfigList = defineComponent({
   setup() {
     const data = reactive(data1)
 
-    const log = console.log
+    const switchStatus = (node: any) => {
+      node.check = !node.check
+      console.log(data)
+    }
 
     return () => {
       const slots = {
         default({ node, data }: any) {
           return (
-            <span class='custom-tree-node'>
-              <span onClick={e => log(node, data)}>{node.label}</span>
-              <el-checkbox></el-checkbox>
-            </span>
+            <div class='config-list'>
+              <span class='config-label' onClick={e => switchStatus(data)}>
+                {node.label}
+              </span>
+              <el-checkbox v-model={data.check} class='config-checkbox'></el-checkbox>
+            </div>
           )
         }
       }

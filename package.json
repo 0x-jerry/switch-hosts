@@ -59,7 +59,8 @@
     "rules": {
       "space-before-function-paren": "off",
       "@typescript-eslint/ban-ts-ignore": "off",
-      "no-template-curly-in-string": "off"
+      "no-template-curly-in-string": "off",
+      "@typescript-eslint/member-delimiter-style": "off"
     }
   },
   "browserslist": [
