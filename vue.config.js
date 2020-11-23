@@ -10,6 +10,7 @@ const config = {
   },
   pluginOptions: {
     electronBuilder: {
+      preload: 'src/preload.ts',
       nodeIntegration: true
     }
   }

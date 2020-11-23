@@ -2,7 +2,7 @@ import { reactive } from 'vue'
 import { isNode } from './config'
 import { Config, ConfigHostItem, ConfigNode } from './define'
 
-export const store = reactive<Config>({} as any)
+export const store = reactive<Config>(window.__preload__.store)
 
 export const actions = {
   getSelectedNode() {
