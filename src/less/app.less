@@ -39,3 +39,35 @@ body {
     padding-right: 5px;
   }
 }
+
+.border {
+  &-r {
+    border-right: 1px solid #eee;
+  }
+
+  &-l {
+    border-left: 1px solid #eee;
+  }
+
+  &-t {
+    border-top: 1px solid #eee;
+  }
+
+  &-b {
+    border-bottom: 1px solid #eee;
+  }
+}
+
+.app {
+  display: grid;
+  grid-template-columns: 240px auto;
+
+  &-sidebar {
+    display: grid;
+    grid-template-rows: 25px auto 25px;
+  }
+
+  &-main {
+    border-left: 1px solid #eee;
+  }
+}
