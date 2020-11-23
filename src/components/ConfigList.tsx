@@ -16,19 +16,28 @@ export const ConfigList = defineComponent({
     return () => {
       const slots = {
         default({ node, data }: { node: any; data: ConfigHostItem }) {
+          const isReadOnly = isNode(data) && data.readonly
+
+          const readonlyIcon = isReadOnly ? (
+            <el-tooltip content='readonly'>
+              <el-icon class='item-icon el-icon-lock' />
+            </el-tooltip>
+          ) : (
+            <div class='noop' />
+          )
+
+          const checkbox = hasCheck(data) ? (
+            <el-checkbox v-model={data.checked} class='item-icon'></el-checkbox>
+          ) : (
+            <div class='noop' />
+          )
+
           return (
             <div class='config-item'>
-              <span class='config-left'>
-                <span class='config-label'>{node.label}</span>
-                {isNode(data) && data.readonly && (
-                  <el-tooltip content='readonly'>
-                    <el-icon class='el-icon-warning-outline' />
-                  </el-tooltip>
-                )}
-              </span>
-              {hasCheck(data) && (
-                <el-checkbox v-model={data.checked} class='config-checkbox'></el-checkbox>
-              )}
+              <span class='config-label'>{node.label}</span>
+              <div class='noop' />
+              {readonlyIcon}
+              {checkbox}
             </div>
           )
         }
