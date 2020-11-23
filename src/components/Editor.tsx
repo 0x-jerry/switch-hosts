@@ -31,68 +31,84 @@ function toggleLineComment(range: IRange, editor: editor.IStandaloneCodeEditor) 
   editor.executeEdits(code, [editAction])
 }
 
+function useEditor() {
+  const el = document.createElement('div')
+  el.classList.add('full')
+
+  const ed = editor.create(el, {
+    language: 'hosts',
+    theme: 'hosts',
+    automaticLayout: true,
+    selectOnLineNumbers: false
+  })
+
+  // @ts-ignore
+  window.__editor = ed
+
+  ed.onMouseDown((e) => {
+    const range = e.target.range
+
+    if (isClickLineNumber(e) && range) {
+      toggleLineComment(range, ed)
+    }
+  })
+
+  ed.onKeyDown(async (e) => {
+    if (e.browserEvent.key === 's' && e.metaKey) {
+      const selectedNode = actions.getSelectedNode()
+      if (selectedNode) {
+        selectedNode.source = ed.getValue()
+      }
+
+      store.saved = true
+      await actions.saveConfig()
+    }
+  })
+
+  ed.onDidChangeModelContent(() => {
+    const selectedNode = actions.getSelectedNode()
+
+    if (selectedNode) {
+      const changed = selectedNode.source !== ed.getValue()
+      store.saved = store.saved && !changed
+    }
+  })
+
+  return {
+    el: el,
+    editor: ed
+  }
+}
+
 export const Editor = defineComponent({
   setup() {
     const data = reactive({
       el: {} as HTMLElement
     })
 
-    let ed: editor.IStandaloneCodeEditor
+    const { el, editor } = useEditor()
 
     function updateSource() {
       const selectedNode = actions.getSelectedNode()
 
-      if (selectedNode && ed) {
-        if (selectedNode.source !== ed.getValue()) {
-          ed.setValue(selectedNode.source)
-        }
-
-        ed.updateOptions({
-          readOnly: selectedNode.readonly
-        })
-
-        ed.setScrollTop(0)
+      if (!selectedNode) {
+        return
       }
+
+      if (selectedNode.source !== editor.getValue()) {
+        editor.setValue(selectedNode.source)
+      }
+
+      editor.updateOptions({
+        readOnly: selectedNode.readonly
+      })
+
+      editor.setScrollTop(0)
     }
 
-    onMounted(() => {
-      ed = editor.create(data.el, {
-        language: 'hosts',
-        theme: 'hosts',
-        selectOnLineNumbers: false
-      })
+    updateSource()
 
-      updateSource()
-
-      ed.onMouseDown((e) => {
-        const range = e.target.range
-
-        if (isClickLineNumber(e) && range) {
-          toggleLineComment(range, ed)
-        }
-      })
-
-      ed.onKeyDown(async (e) => {
-        if (e.browserEvent.key === 's' && e.metaKey) {
-          const selectedNode = actions.getSelectedNode()
-          if (selectedNode) {
-            selectedNode.source = ed.getValue()
-          }
-
-          store.saved = true
-          await actions.saveConfig()
-        }
-      })
-
-      ed.onDidChangeModelContent(() => {
-        const selectedNode = actions.getSelectedNode()
-
-        if (selectedNode) {
-          const changed = selectedNode.source !== ed.getValue()
-          store.saved = store.saved && !changed
-        }
-      })
-    })
+    onMounted(() => data.el.append(el))
 
     watch(
       () => store.selected,
@@ -102,7 +118,7 @@ export const Editor = defineComponent({
     )
 
     return () => {
-      return <div class='editor' ref={(el) => (data.el = el)}></div>
+      return <div class='editor' ref={(el) => (data.el = el as HTMLElement)}></div>
     }
   }
 })
