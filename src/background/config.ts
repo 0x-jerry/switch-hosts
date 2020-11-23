@@ -1,11 +1,11 @@
 import { log } from 'debug'
 import fs from 'fs-extra'
-import { Config, ConfigNode, ConfigSchema } from './define'
-import { confDir, confPath } from './const'
+import { Config, ConfigNode } from '../define'
+import { confDir, confPath } from '../const'
+import { getNode } from '../common'
+import { getHosts } from './utils'
 
-const defaultConfig: () => Config = () => {
-  const hosts = fs.readFileSync('/etc/hosts', { encoding: 'utf-8' })
-
+const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
     id: 'hosts',
     label: 'hosts',
@@ -19,14 +19,6 @@ const defaultConfig: () => Config = () => {
     selected: 'hosts',
     hosts: [node]
   }
-}
-
-export function isSchema(c: ConfigSchema | ConfigNode): c is ConfigSchema {
-  return !!(c as ConfigSchema).mode
-}
-
-export function isNode(c: ConfigSchema | ConfigNode): c is ConfigNode {
-  return !isSchema(c)
 }
 
 export async function saveConfig(conf: Config) {
@@ -57,7 +49,9 @@ function migrateConfig(conf: Config): Config {
 }
 
 export async function getConfig(): Promise<Config> {
-  const defaultConf = defaultConfig()
+  const hosts = getHosts()
+
+  const defaultConf = defaultConfig(hosts)
 
   if (!(await fs.pathExists(confPath))) {
     log('Config is not exist: \n%o', defaultConf)
@@ -74,11 +68,9 @@ export async function getConfig(): Promise<Config> {
 
     conf = migrateConfig(conf)
 
-    const idx = conf.hosts.findIndex(h => h.id === 'hosts')
+    const node = getNode(conf, 'hosts')
 
-    if (idx >= 0) {
-      conf.hosts[idx] = defaultConf.hosts[0]
-    }
+    node && (node.source = hosts)
 
     log('Config: \n%o', conf)
     return conf

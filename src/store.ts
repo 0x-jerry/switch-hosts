@@ -1,33 +1,19 @@
-import { reactive } from 'vue'
-import { isNode } from './config'
-import { Config, ConfigHostItem, ConfigNode } from './define'
+import { ipcRenderer } from 'electron'
+import { reactive, toRaw } from 'vue'
+import { getSelectedNode } from './common/config'
+import { Config } from './define'
+import { IPC_EVENTS } from './const'
 
 export const store = reactive<Config>(window.__preload__.store)
 
 export const actions = {
   getSelectedNode() {
-    const findNode = (nodes: ConfigHostItem[]) => {
-      let selectedNode: ConfigNode | undefined
-
-      for (const node of nodes) {
-        if (isNode(node)) {
-          if (node.id === store.selected) {
-            selectedNode = node
-            break
-          }
-        } else {
-          const node = findNode(nodes)
-
-          if (node) {
-            selectedNode = node
-            break
-          }
-        }
-      }
-
-      return selectedNode
-    }
-
-    return findNode(store.hosts)
+    return getSelectedNode(store)
+  },
+  saveConfig() {
+    return ipcRenderer.invoke(IPC_EVENTS.SAVE_CONFIG, toRaw(store))
+  },
+  saveHosts() {
+    return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
   }
 }

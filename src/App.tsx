@@ -1,6 +1,6 @@
 import { defineComponent } from 'vue'
 import { Sidebar } from './components/Sidebar'
-import { Editor } from './editor/Editor'
+import { Editor } from './components/Editor'
 
 export const App = defineComponent({
   setup() {

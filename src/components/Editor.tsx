@@ -1,7 +1,6 @@
-import { defineComponent, onMounted, reactive, toRaw, watch } from 'vue'
+import { defineComponent, onMounted, reactive, watch } from 'vue'
 import { editor, IRange } from 'monaco-editor'
 import './lang-hosts'
-import { saveConfig } from '../ipc/ipcRenderer'
 import { actions, store } from '../store'
 
 function isClickLineNumber(e: editor.IEditorMouseEvent) {
@@ -35,7 +34,7 @@ function toggleLineComment(range: IRange, editor: editor.IStandaloneCodeEditor) 
 export const Editor = defineComponent({
   setup() {
     const data = reactive({
-      el: null as any
+      el: {} as HTMLElement
     })
 
     let ed: editor.IStandaloneCodeEditor
@@ -65,15 +64,15 @@ export const Editor = defineComponent({
 
       updateSource()
 
-      ed.onMouseDown(e => {
+      ed.onMouseDown((e) => {
         const range = e.target.range
 
         if (isClickLineNumber(e) && range) {
-          toggleLineComment(range, ed!)
+          toggleLineComment(range, ed)
         }
       })
 
-      ed.onKeyDown(async e => {
+      ed.onKeyDown(async (e) => {
         if (e.browserEvent.key === 's' && e.metaKey) {
           const selectedNode = actions.getSelectedNode()
           if (selectedNode) {
@@ -81,11 +80,11 @@ export const Editor = defineComponent({
           }
 
           store.saved = true
-          await saveConfig(toRaw(store))
+          await actions.saveConfig()
         }
       })
 
-      ed.onDidChangeModelContent(e => {
+      ed.onDidChangeModelContent(() => {
         const selectedNode = actions.getSelectedNode()
 
         if (selectedNode) {
@@ -103,7 +102,7 @@ export const Editor = defineComponent({
     )
 
     return () => {
-      return <div class='editor' ref={el => (data.el = el)}></div>
+      return <div class='editor' ref={(el) => (data.el = el)}></div>
     }
   }
 })

@@ -1,4 +1,3 @@
-import { App } from 'vue'
 import { Config } from './define'
 
 declare global {

@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue'
-import { isNode } from '../config'
+import { isNode } from '../common/config'
 import { ConfigHostItem } from '../define'
 import { store } from '../store'
 
