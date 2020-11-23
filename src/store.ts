@@ -6,6 +6,9 @@ import { IPC_EVENTS } from './const'
 
 export const store = reactive<Config>(window.__preload__.store)
 
+// @ts-ignore
+window.__store = store
+
 export const actions = {
   getSelectedNode() {
     return getSelectedNode(store)

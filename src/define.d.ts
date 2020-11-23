@@ -6,7 +6,7 @@ export interface ConfigItem {
 
 export interface ConfigNode extends ConfigItem {
   source: string
-  readonly: boolean
+  readonly?: boolean
 }
 
 export interface ConfigSchema extends ConfigItem {
