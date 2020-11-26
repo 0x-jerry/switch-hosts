@@ -1,5 +1,5 @@
 import { defineComponent, reactive } from 'vue'
-import { store } from '../store'
+import { actions, store } from '../store'
 
 export function useNewHostDialog() {
   const data = reactive({
@@ -7,8 +7,8 @@ export function useNewHostDialog() {
   })
 
   const form = reactive({
-    name: '',
-    isSchema: false
+    name: 'Test',
+    isGroup: false
   })
 
   const close = () => (data.visible = false)
@@ -17,7 +17,10 @@ export function useNewHostDialog() {
 
   const confirm = () => {
     close()
-    if (form.isSchema) {
+
+    form.name = 'Test'
+
+    if (form.isGroup) {
       store.hosts.push({
         id: Math.random().toString(),
         label: form.name,
@@ -34,9 +37,12 @@ export function useNewHostDialog() {
       store.hosts.push({
         id: Math.random().toString(),
         label: form.name,
+        checked: false,
         source: ''
       })
     }
+
+    actions.saveConfig()
   }
 
   const NewHostDialog = defineComponent((_, ctx) => {
@@ -48,18 +54,25 @@ export function useNewHostDialog() {
           width='80%'
           append-to-body={true}
         >
-          <el-input v-model={form.name} />
-          <el-radio-group v-model={form.isSchema}>
-            <el-radio-button label={false}>Node</el-radio-button>
-            <el-radio-button label={true}>Schema</el-radio-button>
-          </el-radio-group>
-
-          <div class='align-end'>
-            <el-button onClick={close}>Cancel</el-button>
-            <el-button type='primary' onClick={confirm}>
-              Confirm
-            </el-button>
-          </div>
+          <el-form label-position='right' label-width='80px'>
+            <el-form-item label='Name:' required>
+              <el-input v-model={form.name} />
+            </el-form-item>
+            <el-form-item label='Schema:'>
+              <el-radio-group v-model={form.isGroup}>
+                <el-radio label={false}>Node</el-radio>
+                <el-radio label={true}>Group</el-radio>
+              </el-radio-group>
+            </el-form-item>
+            <el-form-item>
+              <div class='align-end'>
+                <el-button onClick={close}>Cancel</el-button>
+                <el-button type='primary' onClick={confirm}>
+                  Confirm
+                </el-button>
+              </div>
+            </el-form-item>
+          </el-form>
         </el-dialog>
       )
     }

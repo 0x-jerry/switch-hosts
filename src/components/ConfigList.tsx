@@ -1,7 +1,7 @@
 import { defineComponent } from 'vue'
 import { isNode, isSchema } from '../common/config'
 import { ConfigHostItem } from '../define'
-import { store } from '../store'
+import { actions, store } from '../store'
 import { stop } from '../utils'
 
 const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
@@ -20,6 +20,21 @@ export const ConfigList = defineComponent({
       const slots = {
         default({ node, data }: { node: any; data: ConfigHostItem }) {
           const isReadOnly = isNode(data) && data.readonly
+
+          const deleteIcon = isReadOnly ? (
+            <div class='noop'></div>
+          ) : (
+            <el-link
+              icon='el-icon-delete'
+              underline={false}
+              href='#'
+              onClick={() => {
+                const idx = store.hosts.findIndex((n) => n.id === data.id)
+                store.hosts.splice(idx, 1)
+                actions.saveConfig()
+              }}
+            />
+          )
 
           const singleModeIcon = isSchema(data) ? (
             <div
@@ -59,6 +74,7 @@ export const ConfigList = defineComponent({
                 <span style={{ marginRight: '5px' }}>{icon}</span>
                 {node.label}
               </span>
+              {deleteIcon}
               {readonlyIcon}
               {singleModeIcon}
               {checkboxIcon}
