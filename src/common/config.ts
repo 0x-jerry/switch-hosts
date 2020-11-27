@@ -25,7 +25,7 @@ export function visitConfigItem(conf: Config, visit: (item: ConfigHostItem) => b
 }
 
 export function visitConfigNode(conf: Config, visit: (node: ConfigNode) => void) {
-  visitConfigItem(conf, item => {
+  visitConfigItem(conf, (item) => {
     isNode(item) && visit(item)
   })
 }
@@ -33,7 +33,7 @@ export function visitConfigNode(conf: Config, visit: (node: ConfigNode) => void)
 export function getNode(conf: Config, id: string) {
   let node: ConfigNode | undefined
 
-  visitConfigItem(conf, item => {
+  visitConfigItem(conf, (item) => {
     if (isNode(item) && item.id === id) {
       node = item
       return true
@@ -45,4 +45,28 @@ export function getNode(conf: Config, id: string) {
 
 export function getSelectedNode(conf: Config) {
   return getNode(conf, conf.selected)
+}
+
+export function deleteConfigNode(conf: Config, id: string) {
+  let idx = 0
+  for (const file of conf.hosts) {
+    if (file.id === id) {
+      conf.hosts.splice(idx, 1)
+      break
+    }
+
+    if (isSchema(file)) {
+      let subIdx = 0
+      for (const node of file.children) {
+        if (node.id === id) {
+          file.children.splice(subIdx)
+          break
+        }
+
+        subIdx++
+      }
+    }
+
+    idx++
+  }
 }

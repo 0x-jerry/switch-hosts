@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron'
 import { reactive, toRaw } from 'vue'
-import { getSelectedNode } from './common/config'
+import { deleteConfigNode, getSelectedNode } from './common/config'
 import { Config } from './define'
 import { IPC_EVENTS } from './const'
 
@@ -12,6 +12,9 @@ window.__store = store
 export const actions = {
   getSelectedNode() {
     return getSelectedNode(store)
+  },
+  removeConfigNode(id: string) {
+    return deleteConfigNode(store, id)
   },
   saveConfig() {
     return ipcRenderer.invoke(IPC_EVENTS.SAVE_CONFIG, toRaw(store))

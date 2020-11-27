@@ -11,6 +11,11 @@ export function useNewHostDialog() {
     isGroup: false
   })
 
+  const resetForm = () => {
+    form.name = 'Test'
+    form.isGroup = false
+  }
+
   const close = () => (data.visible = false)
 
   const open = () => (data.visible = true)
@@ -18,20 +23,12 @@ export function useNewHostDialog() {
   const confirm = () => {
     close()
 
-    form.name = 'Test'
-
     if (form.isGroup) {
       store.hosts.push({
         id: Math.random().toString(),
         label: form.name,
         mode: 'single',
-        children: [
-          {
-            id: Math.random().toString(),
-            label: form.name,
-            source: ''
-          }
-        ]
+        children: []
       })
     } else {
       store.hosts.push({
@@ -41,8 +38,9 @@ export function useNewHostDialog() {
         source: ''
       })
     }
-
     actions.saveConfig()
+
+    resetForm()
   }
 
   const NewHostDialog = defineComponent((_, ctx) => {

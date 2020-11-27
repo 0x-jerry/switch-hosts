@@ -1,4 +1,4 @@
-import { defineComponent } from 'vue'
+import { defineComponent, reactive, toRaw } from 'vue'
 import { isNode, isSchema } from '../common/config'
 import { ConfigHostItem } from '../define'
 import { actions, store } from '../store'
@@ -16,7 +16,13 @@ export const ConfigList = defineComponent({
 
     const defaultSelected = store.selected
 
+    const data = reactive({
+      expanded: [defaultSelected]
+    })
+
     return () => {
+      const treeData = store.hosts.map((n) => toRaw(n))
+
       const slots = {
         default({ node, data }: { node: any; data: ConfigHostItem }) {
           const isReadOnly = isNode(data) && data.readonly
@@ -29,8 +35,7 @@ export const ConfigList = defineComponent({
               underline={false}
               href='#'
               onClick={() => {
-                const idx = store.hosts.findIndex((n) => n.id === data.id)
-                store.hosts.splice(idx, 1)
+                actions.removeConfigNode(data.id)
                 actions.saveConfig()
               }}
             />
@@ -83,16 +88,34 @@ export const ConfigList = defineComponent({
         }
       }
 
-      const treeData = store.hosts.slice()
-
-      console.log('re render')
       return (
         <el-tree
           data={treeData}
           node-key='id'
           highlight-current
+          draggable={true}
+          allow-drop={(draggingNode: any, dropNode: any, type: string) =>
+            type === 'inner' ? isSchema(dropNode.data) && !isSchema(draggingNode.data) : true
+          }
+          expand-on-click-node={false}
+          default-expanded-keys={data.expanded}
           current-node-key={defaultSelected}
           onNodeClick={clickItem}
+          onNodeDrop={() => {
+            store.hosts = treeData
+            actions.saveConfig()
+          }}
+          onNodeCollapse={(item: ConfigHostItem) => {
+            const idx = data.expanded.findIndex((id) => id === item.id)
+            if (idx >= 0) {
+              data.expanded.splice(idx, 1)
+            }
+          }}
+          onNodeExpand={(item: ConfigHostItem) => {
+            // on node expand not working.
+            console.log('on-node-expand')
+            data.expanded.push(item.id)
+          }}
           v-slots={slots}
         ></el-tree>
       )
