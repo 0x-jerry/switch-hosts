@@ -106,6 +106,7 @@ export const ConfigList = defineComponent({
             actions.saveConfig()
           }}
           onNodeCollapse={(item: ConfigHostItem) => {
+            console.log('on-node-collapse')
             const idx = data.expanded.findIndex((id) => id === item.id)
             if (idx >= 0) {
               data.expanded.splice(idx, 1)
