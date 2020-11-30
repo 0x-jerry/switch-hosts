@@ -36,7 +36,7 @@ export const ConfigList = defineComponent({
               href='#'
               onClick={() => {
                 actions.removeConfigNode(data.id)
-                actions.saveConfig()
+                actions.saveHosts()
               }}
             />
           )

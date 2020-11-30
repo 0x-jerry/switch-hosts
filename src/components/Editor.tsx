@@ -61,7 +61,7 @@ function useEditor() {
       }
 
       store.saved = true
-      await actions.saveConfig()
+      await actions.saveHosts()
     }
   })
 
