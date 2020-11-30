@@ -17,6 +17,9 @@ export interface ConfigSchema extends ConfigItem {
 export type ConfigHostItem = ConfigSchema | ConfigNode
 
 export interface Config {
+  env: {
+    platform: string
+  }
   version: string
   selected: string
   saved: boolean

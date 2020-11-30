@@ -1,13 +1,16 @@
-import { defineComponent, reactive } from 'vue'
+import { defineComponent } from 'vue'
 import { Sidebar } from './components/Sidebar'
 import { Editor } from './components/Editor'
 import { usePasswordDialog } from './dialogs/PromptDialog'
+import { store } from './store'
 
 export const App = defineComponent({
   setup() {
     const { open, PasswordDialog } = usePasswordDialog()
 
-    open()
+    if (store.env.platform !== 'win32') {
+      open()
+    }
 
     return () => {
       return (

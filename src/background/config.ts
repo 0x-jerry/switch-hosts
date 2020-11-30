@@ -1,7 +1,7 @@
 import { log } from 'debug'
 import fs from 'fs-extra'
 import { Config, ConfigNode } from '../define'
-import { confDir, confPath } from '../const'
+import { confDir, confPath, platform } from '../const'
 import { getNode } from '../common'
 import { getHosts } from './utils'
 
@@ -14,6 +14,9 @@ const defaultConfig: (hosts: string) => Config = (hosts) => {
   }
 
   return {
+    env: {
+      platform
+    },
     version: '1.0.0',
     saved: true,
     selected: 'hosts',
@@ -61,6 +64,8 @@ export async function getConfig(): Promise<Config> {
   try {
     const txt = await fs.readFile(confPath, { encoding: 'utf-8' })
     let conf: Config = JSON.parse(txt)
+
+    conf = Object.assign(defaultConf, conf)
 
     if (typeof conf.version !== 'string') {
       throw new Error('Wrong config format')
