@@ -20,7 +20,8 @@ export function useNewHostDialog() {
 
   const open = () => (data.visible = true)
 
-  const confirm = () => {
+  const confirm = (e: Event) => {
+    e.preventDefault()
     close()
 
     if (form.isGroup) {
@@ -52,7 +53,7 @@ export function useNewHostDialog() {
           width='80%'
           append-to-body={true}
         >
-          <el-form label-position='right' label-width='80px'>
+          <el-form label-position='right' label-width='80px' onSubmit={confirm}>
             <el-form-item label='Name:' required>
               <el-input v-model={form.name} />
             </el-form-item>

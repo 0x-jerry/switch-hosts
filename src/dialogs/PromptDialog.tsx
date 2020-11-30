@@ -14,7 +14,8 @@ export function usePasswordDialog() {
 
   const open = () => (data.visible = true)
 
-  const confirm = async () => {
+  const confirm = async (e: Event) => {
+    e.preventDefault()
     await actions.setPassword(form.password)
     close()
   }
@@ -23,7 +24,7 @@ export function usePasswordDialog() {
     return () => {
       return (
         <el-dialog title='Input Password' v-model={data.visible} width='50%' append-to-body={true}>
-          <el-form label-position='right' label-width='120px'>
+          <el-form label-position='right' label-width='120px' onSubmit={confirm}>
             <el-form-item label='Password:' required>
               <el-input v-model={form.password} type='password' />
             </el-form-item>
