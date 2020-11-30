@@ -1,24 +1,9 @@
 # switch-hosts
 
-## Project setup
-```
-yarn install
-```
+切换 Hosts，灵感来源于 https://github.com/oldj/SwitchHosts
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+## TODO
 
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+- [ ] i18n
+- [ ] 自动保存/切换
+- [ ] 修改名称
