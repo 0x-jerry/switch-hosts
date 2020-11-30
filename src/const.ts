@@ -9,13 +9,16 @@ export const confPath = path.join(confDir, 'data.json')
 
 export const tempHostsPath = path.join(confDir, 'temp.hosts')
 
-export const hostsPath =
-  os.platform() === 'win32'
+export const platform = os.platform()
+
+export const sysHostsPath =
+  platform === 'win32'
     ? path.join(path.parse(os.homedir()).root, 'windows/system32/drivers/etc/hosts')
     : '/etc/hosts'
 
 export enum IPC_EVENTS {
   SAVE_CONFIG = 'save-config',
   GET_CONFIG = 'get-config',
-  SAVE_HOSTS = 'save-hosts'
+  SAVE_HOSTS = 'save-hosts',
+  SET_PASSWORD = 'set-password'
 }

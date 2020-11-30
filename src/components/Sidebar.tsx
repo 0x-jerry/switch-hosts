@@ -1,5 +1,5 @@
 import { defineComponent } from 'vue'
-import { useNewHostDialog } from '../dialogs/Dialog'
+import { useNewHostDialog } from '../dialogs/NewHostDialog'
 import { ConfigList } from './ConfigList'
 
 export const Sidebar = defineComponent(() => {

@@ -4,6 +4,7 @@ import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
 import { switchHosts } from './hosts'
 import { visitConfigNode } from '../common/config'
+import { globalStore } from './store'
 
 const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
   [IPC_EVENTS.SAVE_CONFIG](_, conf: Config) {
@@ -17,10 +18,13 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
 
     const hosts: string[] = []
 
-    visitConfigNode(conf, node => node.checked && hosts.push(node.source))
+    visitConfigNode(conf, (node) => node.checked && hosts.push(node.source))
 
     await switchHosts(hosts.join('\n'))
+  },
+  [IPC_EVENTS.SET_PASSWORD](_, password: string) {
+    globalStore.password = password
   }
 }
 
-Object.keys(events).forEach(key => ipcMain.handle(key, events[key]))
+Object.keys(events).forEach((key) => ipcMain.handle(key, events[key]))

@@ -28,7 +28,7 @@ export const ConfigList = defineComponent({
           const isReadOnly = isNode(data) && data.readonly
 
           const deleteIcon = isReadOnly ? (
-            <div class='noop'></div>
+            ''
           ) : (
             <el-link
               icon='el-icon-delete'
@@ -43,14 +43,14 @@ export const ConfigList = defineComponent({
 
           const singleModeIcon = isSchema(data) ? (
             <div
-              class={['icon-dot', data.mode === 'single' ? '' : 'grey']}
+              class={['icon-dot', 'item-icon', data.mode === 'single' ? '' : 'grey']}
               onClick={(e) => {
                 e.stopPropagation()
                 data.mode = data.mode === 'single' ? 'multi' : 'single'
               }}
             />
           ) : (
-            <div class='noop' />
+            ''
           )
 
           const readonlyIcon = isReadOnly ? (
@@ -58,14 +58,22 @@ export const ConfigList = defineComponent({
               <el-icon class='item-icon el-icon-lock' />
             </el-tooltip>
           ) : (
-            <div class='noop' />
+            ''
           )
 
           const checkboxIcon = hasCheck(data) ? (
             <el-checkbox v-model={data.checked} class='item-icon' onClick={stop}></el-checkbox>
           ) : (
-            <div class='noop' />
+            ''
           )
+
+          const icons = [deleteIcon, readonlyIcon, singleModeIcon, checkboxIcon].filter((n) => !!n)
+
+          const nodes = [...icons]
+
+          for (let idx = 0; idx < 4 - icons.length; idx++) {
+            nodes.unshift(<div class='noop' />)
+          }
 
           const icon = isNode(data) ? (
             <el-icon class='el-icon-document' />
@@ -79,10 +87,7 @@ export const ConfigList = defineComponent({
                 <span style={{ marginRight: '5px' }}>{icon}</span>
                 {node.label}
               </span>
-              {deleteIcon}
-              {readonlyIcon}
-              {singleModeIcon}
-              {checkboxIcon}
+              {...nodes}
             </div>
           )
         }

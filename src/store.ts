@@ -21,5 +21,8 @@ export const actions = {
   },
   saveHosts() {
     return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
+  },
+  setPassword(password: string) {
+    return ipcRenderer.invoke(IPC_EVENTS.SET_PASSWORD, password)
   }
 }
