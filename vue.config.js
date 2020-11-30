@@ -14,7 +14,8 @@ const config = {
   pluginOptions: {
     electronBuilder: {
       preload: 'src/preload.ts',
-      nodeIntegration: true
+      nodeIntegration: true,
+      mainProcessWatch: ['src/background']
     }
   }
 }
