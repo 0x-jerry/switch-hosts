@@ -1,0 +1,26 @@
+{
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Electron: Main",
+      "type": "node",
+      "request": "launch",
+      "protocol": "inspector",
+      "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron",
+      "windows": {
+        "runtimeExecutable": "${workspaceRoot}/node_modules/.bin/electron.cmd"
+      },
+      "preLaunchTask": "electron-debug",
+      "env": {
+        "NODE_ENV": "development"
+      },
+      "outputCapture": "std",
+      "envFile": "${workspaceFolder}/.env.development",
+      "args": ["./dist_electron"],
+      "outFiles": ["${workspaceFolder}/dist_electron/**/*.js"]
+    }
+  ]
+}
