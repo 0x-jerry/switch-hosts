@@ -1,5 +1,6 @@
 import { Config, ConfigHostItem, ConfigNode, ConfigSchema } from '../define'
 
+export const sysHostsId = 'sys-hosts'
 export function isSchema(c: ConfigSchema | ConfigNode): c is ConfigSchema {
   return !!(c as ConfigSchema).mode
 }

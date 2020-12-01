@@ -1,9 +1,9 @@
 import { ipcMain, IpcMainInvokeEvent } from 'electron'
-import { getConfig, saveConfig } from './config'
+import { getConfig, resetConfig, saveConfig } from './config'
 import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
 import { switchHosts } from './hosts'
-import { visitConfigNode } from '../common/config'
+import { getNode, sysHostsId } from '../common/config'
 import { globalStore } from './store'
 
 const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
@@ -13,14 +13,17 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
   [IPC_EVENTS.GET_CONFIG]() {
     return getConfig()
   },
+  [IPC_EVENTS.RESET_CONFIG]() {
+    return resetConfig()
+  },
   async [IPC_EVENTS.SAVE_HOSTS](_, conf: Config) {
     await saveConfig(conf)
 
-    const hosts: string[] = []
+    const node = getNode(conf, sysHostsId)
 
-    visitConfigNode(conf, (node) => node.checked && hosts.push(node.source))
-
-    await switchHosts(hosts.join('\n'))
+    if (node) {
+      await switchHosts(node.source)
+    }
   },
   [IPC_EVENTS.SET_PASSWORD](_, password: string) {
     globalStore.password = password

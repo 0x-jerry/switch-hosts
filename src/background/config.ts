@@ -2,12 +2,12 @@ import { log } from 'debug'
 import fs from 'fs-extra'
 import { Config, ConfigNode } from '../define'
 import { confDir, confPath, platform } from '../const'
-import { getNode } from '../common'
+import { getNode, sysHostsId } from '../common'
 import { getHosts } from './utils'
 
 const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
-    id: 'hosts',
+    id: sysHostsId,
     label: 'hosts',
     source: hosts,
     readonly: true
@@ -19,7 +19,7 @@ const defaultConfig: (hosts: string) => Config = (hosts) => {
     },
     version: '1.0.0',
     saved: true,
-    selected: 'hosts',
+    selected: sysHostsId,
     hosts: [node]
   }
 }
@@ -30,6 +30,14 @@ export async function saveConfig(conf: Config) {
   await fs.writeFile(confPath, JSON.stringify(conf, null, 2))
 
   log('Save config: \n%o', conf)
+}
+
+export async function resetConfig() {
+  const defaultConf = defaultConfig(getHosts())
+
+  await saveConfig(defaultConf)
+
+  return defaultConf
 }
 
 const migrateStrategy: Record<string, (conf: Config) => Config> = {

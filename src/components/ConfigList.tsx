@@ -2,7 +2,6 @@ import { defineComponent, reactive, toRaw } from 'vue'
 import { isNode, isSchema } from '../common/config'
 import { ConfigHostItem } from '../define'
 import { actions, store } from '../store'
-import { stop } from '../utils'
 
 const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
 
@@ -27,47 +26,57 @@ export const ConfigList = defineComponent({
         default({ node, data }: { node: any; data: ConfigHostItem }) {
           const isReadOnly = isNode(data) && data.readonly
 
-          const deleteIcon = isReadOnly ? (
-            ''
-          ) : (
-            <el-link
-              icon='el-icon-delete'
-              underline={false}
-              href='#'
-              onClick={() => {
-                actions.removeConfigNode(data.id)
-                actions.saveHosts()
-              }}
-            />
-          )
+          const icons = []
 
-          const singleModeIcon = isSchema(data) ? (
-            <div
-              class={['icon-dot', 'item-icon', data.mode === 'single' ? '' : 'grey']}
-              onClick={(e) => {
-                e.stopPropagation()
-                data.mode = data.mode === 'single' ? 'multi' : 'single'
-              }}
-            />
-          ) : (
-            ''
-          )
+          if (!isReadOnly) {
+            const deleteIcon = (
+              <el-link
+                icon='el-icon-delete'
+                underline={false}
+                href='#'
+                onClick={() => {
+                  actions.removeConfigNode(data.id)
+                  actions.saveHosts()
+                }}
+              />
+            )
 
-          const readonlyIcon = isReadOnly ? (
-            <el-tooltip content='readonly'>
-              <el-icon class='item-icon el-icon-lock' />
-            </el-tooltip>
-          ) : (
-            ''
-          )
+            icons.push(deleteIcon)
+          }
 
-          const checkboxIcon = hasCheck(data) ? (
-            <el-checkbox v-model={data.checked} class='item-icon' onClick={stop}></el-checkbox>
-          ) : (
-            ''
-          )
+          if (isSchema(data)) {
+            const isSingle = data.mode === 'single'
+            const singleModeIcon = (
+              <div
+                class={['icon-dot', 'item-icon', isSingle ? '' : 'grey']}
+                onClick={() => (data.mode = isSingle ? 'multi' : 'single')}
+              />
+            )
 
-          const icons = [deleteIcon, readonlyIcon, singleModeIcon, checkboxIcon].filter((n) => !!n)
+            icons.push(singleModeIcon)
+          }
+
+          if (isReadOnly) {
+            const readonlyIcon = (
+              <el-tooltip content='readonly'>
+                <el-icon class='item-icon el-icon-lock' />
+              </el-tooltip>
+            )
+
+            icons.push(readonlyIcon)
+          }
+
+          if (hasCheck(data)) {
+            const checkboxIcon = (
+              <el-checkbox
+                v-model={data.checked}
+                class='item-icon'
+                onChange={() => actions.saveHosts()}
+              />
+            )
+
+            icons.push(checkboxIcon)
+          }
 
           const nodes = [...icons]
 

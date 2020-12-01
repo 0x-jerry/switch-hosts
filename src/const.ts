@@ -19,6 +19,9 @@ export const sysHostsPath =
 export enum IPC_EVENTS {
   SAVE_CONFIG = 'save-config',
   GET_CONFIG = 'get-config',
+  RESET_CONFIG = 'reset-config',
   SAVE_HOSTS = 'save-hosts',
   SET_PASSWORD = 'set-password'
 }
+
+export const isDebug = process.env.NODE_ENV === 'development'
