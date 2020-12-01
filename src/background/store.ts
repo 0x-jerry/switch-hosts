@@ -1,3 +1,7 @@
+import { Config } from '../define'
+
 export const globalStore = {
-  password: ''
+  password: '',
+  tray: undefined as any,
+  conf: {} as Config
 }
