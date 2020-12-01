@@ -1,5 +1,5 @@
-import { BrowserWindow } from 'electron'
-import { IPC_RENDER_EVENTS } from '../const'
+import { BrowserWindow, ipcMain } from 'electron'
+import { IPC_EVENTS, IPC_RENDER_EVENTS } from '../const'
 import { Config } from '../define'
 
 export const globalStore = {
@@ -19,7 +19,11 @@ function sendMsg(channel: string, ...args: any) {
 }
 
 export const actions = {
+  saveHosts(conf: Config) {
+    ipcMain.emit(IPC_EVENTS.SAVE_HOSTS, conf)
+  },
   updateConfig() {
     sendMsg(IPC_RENDER_EVENTS.UPDATE_CONFIG, globalStore.conf)
+    actions.saveHosts(globalStore.conf)
   }
 }
