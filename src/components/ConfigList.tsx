@@ -48,7 +48,6 @@ export const ConfigList = defineComponent({
               <div
                 class={['icon-dot', 'item-icon', isSingle ? '' : 'grey']}
                 onClick={() => {
-                  data = getSchema(store, data.id)!
                   data.mode = isSingle ? 'multi' : 'single'
 
                   // 保证单选的时候只选择一个
@@ -88,6 +87,7 @@ export const ConfigList = defineComponent({
             const checkboxIcon = (
               <el-checkbox
                 class='item-icon'
+                v-model={data.checked}
                 onClick={() => {
                   const isChildNode = node.parent.level === 1
                   const parentNode: ConfigSchema = node.parent.data
