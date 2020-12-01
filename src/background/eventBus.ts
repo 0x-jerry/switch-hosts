@@ -3,5 +3,6 @@ import { EventEmitter } from 'events'
 export const eventBus = new EventEmitter()
 
 export enum EVENTS {
-  UPDATE_TRAY_MENU = 'update-tray-menu'
+  UPDATE_TRAY_MENU = 'update-tray-menu',
+  SHOW_WINDOW = 'show-window'
 }

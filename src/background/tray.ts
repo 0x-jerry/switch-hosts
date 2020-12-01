@@ -3,8 +3,7 @@ import path from 'path'
 import { hasCheck, isNode } from '../common'
 import { ConfigNode } from '../define'
 import { eventBus, EVENTS } from './eventBus'
-import { globalStore } from './store'
-import { log } from './utils'
+import { actions, globalStore } from './store'
 
 app.whenReady().then(() => {
   const tray = new Tray(path.join(__static, 'icon.png'))
@@ -18,7 +17,10 @@ app.whenReady().then(() => {
     const menus: (MenuItemConstructorOptions | MenuItem)[] = []
     menus.push(
       {
-        label: 'switch-hosts'
+        label: 'switch-hosts',
+        click() {
+          eventBus.emit(EVENTS.SHOW_WINDOW)
+        }
       },
       {
         label: 'v1.0.0',
@@ -34,7 +36,11 @@ app.whenReady().then(() => {
         label: node.label,
         type: mode === 'single' ? 'radio' : 'checkbox',
         enabled: !node.readonly && hasCheck(node),
-        checked: node.checked
+        checked: node.checked,
+        click() {
+          node.checked = !node.checked
+          actions.updateConfig()
+        }
       }
     }
 
@@ -53,6 +59,17 @@ app.whenReady().then(() => {
     )
 
     menus.push(...hostsMenus)
+    menus.push(
+      {
+        type: 'separator'
+      },
+      {
+        label: 'quit',
+        click() {
+          app.quit()
+        }
+      }
+    )
 
     const contextMenu = Menu.buildFromTemplate(menus)
 

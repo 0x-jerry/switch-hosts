@@ -24,4 +24,8 @@ export enum IPC_EVENTS {
   SET_PASSWORD = 'set-password'
 }
 
+export enum IPC_RENDER_EVENTS {
+  UPDATE_CONFIG = 'update-config'
+}
+
 export const isDebug = process.env.NODE_ENV === 'development'

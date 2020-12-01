@@ -8,7 +8,7 @@ import {
   visitConfigNode
 } from './common/config'
 import { Config } from './define'
-import { IPC_EVENTS } from './const'
+import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { uuid } from './utils'
 
 export const store = reactive<Config>(window.__preload__.store)
@@ -69,3 +69,11 @@ export const actions = {
     return ipcRenderer.invoke(IPC_EVENTS.SET_PASSWORD, password)
   }
 }
+
+ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf) => {
+  for (const key in conf) {
+    // @ts-ignore
+    store[key] = conf[key]
+  }
+  console.log(store)
+})
