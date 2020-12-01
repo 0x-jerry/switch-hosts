@@ -1,6 +1,5 @@
 import { defineComponent, reactive } from 'vue'
-import { actions, store } from '../store'
-import { uuid } from '../utils'
+import { actions } from '../store'
 
 export function useNewHostDialog() {
   const data = reactive({
@@ -25,22 +24,7 @@ export function useNewHostDialog() {
     e.preventDefault()
     close()
 
-    if (form.isGroup) {
-      store.hosts.push({
-        id: uuid(),
-        label: form.name,
-        mode: 'single',
-        children: []
-      })
-    } else {
-      store.hosts.push({
-        id: uuid(),
-        label: form.name,
-        checked: false,
-        source: ''
-      })
-    }
-    actions.saveConfig()
+    actions.addConfigNode(form.name, form.isGroup)
 
     resetForm()
   }

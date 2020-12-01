@@ -9,6 +9,7 @@ import {
 } from './common/config'
 import { Config } from './define'
 import { IPC_EVENTS } from './const'
+import { uuid } from './utils'
 
 export const store = reactive<Config>(window.__preload__.store)
 
@@ -21,6 +22,25 @@ export const actions = {
   },
   removeConfigNode(id: string) {
     return deleteConfigNode(store, id)
+  },
+  addConfigNode(label: string, isGroup: boolean) {
+    if (isGroup) {
+      store.hosts.push({
+        label,
+        id: uuid(),
+        mode: 'single',
+        children: []
+      })
+    } else {
+      store.hosts.push({
+        label,
+        id: uuid(),
+        checked: false,
+        source: ''
+      })
+    }
+
+    return actions.saveConfig()
   },
   saveConfig() {
     return ipcRenderer.invoke(IPC_EVENTS.SAVE_CONFIG, toRaw(store))
