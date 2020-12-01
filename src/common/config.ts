@@ -9,6 +9,8 @@ export function isNode(c: ConfigSchema | ConfigNode): c is ConfigNode {
   return !isSchema(c)
 }
 
+export const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
+
 /**
  *
  * @param visit 返回 true，跳出循环
@@ -29,6 +31,19 @@ export function visitConfigNode(conf: Config, visit: (node: ConfigNode) => void)
   visitConfigItem(conf, (item) => {
     isNode(item) && visit(item)
   })
+}
+
+export function getSchema(conf: Config, id: string) {
+  let node: ConfigSchema | undefined
+
+  visitConfigItem(conf, (item) => {
+    if (isSchema(item) && item.id === id) {
+      node = item
+      return true
+    }
+  })
+
+  return node
 }
 
 export function getNode(conf: Config, id: string) {

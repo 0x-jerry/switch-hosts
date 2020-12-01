@@ -1,9 +1,7 @@
 import { defineComponent, reactive, toRaw } from 'vue'
-import { isNode, isSchema } from '../common/config'
-import { ConfigHostItem } from '../define'
+import { getNode, getSchema, hasCheck, isNode, isSchema } from '../common/config'
+import { ConfigHostItem, ConfigSchema } from '../define'
 import { actions, store } from '../store'
-
-const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
 
 export const ConfigList = defineComponent({
   setup() {
@@ -49,7 +47,27 @@ export const ConfigList = defineComponent({
             const singleModeIcon = (
               <div
                 class={['icon-dot', 'item-icon', isSingle ? '' : 'grey']}
-                onClick={() => (data.mode = isSingle ? 'multi' : 'single')}
+                onClick={() => {
+                  data = getSchema(store, data.id)!
+                  data.mode = isSingle ? 'multi' : 'single'
+
+                  // 保证单选的时候只选择一个
+                  if (data.mode === 'single') {
+                    let checked = false
+                    data.children.forEach((n) => {
+                      if (!hasCheck(n) || !n.checked) {
+                        return
+                      }
+
+                      if (!checked) {
+                        checked = true
+                      } else {
+                        n.checked = false
+                      }
+                    })
+                  }
+                  actions.saveHosts()
+                }}
               />
             )
 
@@ -69,9 +87,25 @@ export const ConfigList = defineComponent({
           if (hasCheck(data)) {
             const checkboxIcon = (
               <el-checkbox
-                v-model={data.checked}
                 class='item-icon'
-                onChange={() => actions.saveHosts()}
+                onClick={() => {
+                  const isChildNode = node.parent.level === 1
+                  const parentNode: ConfigSchema = node.parent.data
+                  const isRadio = isChildNode && parentNode.mode === 'single'
+
+                  if (isRadio) {
+                    const parentData = getSchema(store, parentNode.id)!
+
+                    parentData.children.forEach((n) => {
+                      n.checked = n.id === data.id
+                    })
+                  } else {
+                    const nodeData = getNode(store, data.id)!
+                    nodeData.checked = !data.checked
+                  }
+
+                  actions.saveHosts()
+                }}
               />
             )
 
