@@ -75,5 +75,4 @@ ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf) => {
     // @ts-ignore
     store[key] = conf[key]
   }
-  console.log(store)
 })

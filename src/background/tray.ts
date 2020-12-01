@@ -1,7 +1,7 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions, Tray } from 'electron'
 import path from 'path'
 import { hasCheck, isNode } from '../common'
-import { ConfigNode } from '../define'
+import { ConfigNode, ConfigSchema } from '../define'
 import { eventBus, EVENTS } from './eventBus'
 import { actions, globalStore } from './store'
 
@@ -31,14 +31,24 @@ app.whenReady().then(() => {
       }
     )
 
-    function nodeToMenuItem(node: ConfigNode, mode?: string): MenuItemConstructorOptions {
+    function nodeToMenuItem(node: ConfigNode, parent?: ConfigSchema): MenuItemConstructorOptions {
+      const isSingle = parent && parent.mode === 'single'
+
       return {
         label: node.label,
-        type: mode === 'single' ? 'radio' : 'checkbox',
+        type: isSingle ? 'radio' : 'checkbox',
         enabled: !node.readonly && hasCheck(node),
         checked: node.checked,
         click() {
-          node.checked = !node.checked
+          if (isSingle && parent) {
+            parent.children.forEach((n) => {
+              hasCheck(n) && (n.checked = false)
+            })
+
+            node.checked = true
+          } else {
+            node.checked = !node.checked
+          }
           actions.updateConfig()
         }
       }
@@ -52,7 +62,7 @@ app.whenReady().then(() => {
           return {
             label: node.label,
             type: 'submenu',
-            submenu: node.children.map((n) => nodeToMenuItem(n))
+            submenu: node.children.map((n) => nodeToMenuItem(n, node))
           }
         }
       }
