@@ -6,7 +6,7 @@
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
-    "electron:build": "vue-cli-service electron:build",
+    "electron:build": "vue-cli-service electron:build --publish never",
     "electron:serve": "vue-cli-service electron:serve",
     "electron:generate-icons": "electron-icon-builder --input=./public/logo.png --output=build --flatten",
     "postinstall": "electron-builder install-app-deps",
@@ -49,7 +49,7 @@
     "less-loader": "^7.1.0",
     "monaco-editor-webpack-plugin": "^2.0.0",
     "typescript": "~4.1.2",
-    "vue-cli-plugin-electron-builder": "2.0.0-rc.4"
+    "vue-cli-plugin-electron-builder": "^2.0.0-rc.5"
   },
   "eslintConfig": {
     "root": true,
