@@ -22,10 +22,16 @@ export const Sidebar = defineComponent(() => {
       <div>
         <ConfigList />
         <div class='border-t sidebar-toolbar'>
-          <el-link icon='toolbar-icon el-icon-plus' underline={false} href='#' onClick={open} />
+          <el-link
+            icon='toolbar-icon el-icon-plus'
+            title='New host'
+            underline={false}
+            href='#'
+            onClick={open}
+          />
           <div class='align-end'>
             {isDebug && resetIcon}
-            <el-link icon='toolbar-icon el-icon-info' underline={false} href='#' />
+            <el-link icon='toolbar-icon el-icon-info' title='About' underline={false} href='#' />
           </div>
         </div>
         <NewHostDialog />
