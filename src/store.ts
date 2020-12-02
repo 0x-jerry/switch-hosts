@@ -45,7 +45,14 @@ const saveHosts = debounce(
 
 export const actions = {
   getSelectedNode() {
-    return getSelectedNode(store)
+    const node = getSelectedNode(store)
+
+    if (!node) {
+      store.selected = sysHostsId
+      return getSelectedNode(store)
+    }
+
+    return node
   },
   removeConfigNode(id: string) {
     return deleteConfigNode(store, id)

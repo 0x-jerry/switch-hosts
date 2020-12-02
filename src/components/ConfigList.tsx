@@ -1,5 +1,5 @@
-import { defineComponent, nextTick, reactive, watchEffect } from 'vue'
-import { getConfigNode, getNode, getSchema, hasCheck, isNode, isSchema } from '../common/config'
+import { defineComponent, reactive, watchEffect } from 'vue'
+import { getConfigNode, getSchema, hasCheck, isNode, isSchema, sysHostsId } from '../common/config'
 import { ConfigHostItem, ConfigSchema } from '../define'
 import { actions, store } from '../store'
 
@@ -26,6 +26,10 @@ export const ConfigList = defineComponent({
       const slots = {
         default({ node, data }: any) {
           const nodeData = getConfigNode(store, data.id)!
+
+          if (!nodeData) {
+            return
+          }
 
           const isReadOnly = isNode(nodeData) && nodeData.readonly
 
