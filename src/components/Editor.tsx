@@ -120,11 +120,7 @@ export const Editor = defineComponent({
     onMounted(() => data.el.append(el))
 
     watch(
-      () => {
-        const node = actions.getSelectedNode()
-
-        return node && node.source
-      },
+      () => store.selected,
       () => {
         updateSource()
       }
