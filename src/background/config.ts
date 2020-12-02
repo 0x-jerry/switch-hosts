@@ -91,7 +91,7 @@ export async function getConfig(): Promise<Config> {
 
     conf = migrateConfig(conf)
 
-    const node = getNode(conf, 'hosts')
+    const node = getNode(conf, sysHostsId)
 
     node && (node.source = hosts)
 

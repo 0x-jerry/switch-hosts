@@ -4,4 +4,8 @@ import { sysHostsPath } from '../const'
 
 export const log = debug('switch-hosts')
 
-export const getHosts = () => fs.readFileSync(sysHostsPath, { encoding: 'utf-8' })
+export const getHosts = () => {
+  const source = fs.readFileSync(sysHostsPath, { encoding: 'utf-8' })
+  log('System hosts: \n%s', source)
+  return source
+}

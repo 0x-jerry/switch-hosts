@@ -98,6 +98,8 @@ export const Editor = defineComponent({
     function updateSource() {
       const selectedNode = actions.getSelectedNode()
 
+      store.saved = true
+
       if (!selectedNode) {
         return
       }
