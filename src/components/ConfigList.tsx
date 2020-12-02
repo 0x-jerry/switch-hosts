@@ -32,7 +32,11 @@ export const ConfigList = defineComponent({
                 href='#'
                 onClick={() => {
                   actions.removeConfigNode(nodeData.id)
-                  actions.saveHosts()
+                  if (nodeData.checked) {
+                    actions.saveHosts()
+                  } else {
+                    actions.saveConfig()
+                  }
                 }}
               />
             )
@@ -63,6 +67,8 @@ export const ConfigList = defineComponent({
                 onClick={() => {
                   nodeData.mode = isSingle ? 'multi' : 'single'
 
+                  let needSwitchHosts = false
+
                   // 保证单选的时候只选择一个
                   if (nodeData.mode === 'single') {
                     let checked = false
@@ -74,12 +80,17 @@ export const ConfigList = defineComponent({
                       if (!checked) {
                         checked = true
                       } else {
+                        needSwitchHosts = true
                         n.checked = false
                       }
                     })
                   }
 
-                  actions.saveHosts()
+                  if (needSwitchHosts) {
+                    actions.saveHosts()
+                  } else {
+                    actions.saveConfig()
+                  }
                 }}
               />
             )
