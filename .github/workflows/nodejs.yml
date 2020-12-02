@@ -12,8 +12,7 @@ jobs:
   build:
     strategy:
       matrix:
-        os: [ubuntu-latest]
-        # os: [ubuntu-latest, windows-latest, macos-latest]
+        os: [ubuntu-latest, windows-latest, macos-latest]
 
     runs-on: ${{ matrix.os }}
 
@@ -44,7 +43,7 @@ jobs:
         with:
           name: ${{ matrix.os }}
           path: |
-            ${{ github.workspace }}/dist_electron/switch-hosts-*.dmg
-            ${{ github.workspace }}/dist_electron/switch-hosts-*.exe
-            ${{ github.workspace }}/dist_electron/switch-hosts-*.AppImage
+            ${{ github.workspace }}/dist_electron/switch-hosts*.dmg
+            ${{ github.workspace }}/dist_electron/switch-hosts*.exe
+            ${{ github.workspace }}/dist_electron/switch-hosts*.AppImage
           retention-days: 1
