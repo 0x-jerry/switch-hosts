@@ -56,12 +56,19 @@ function useEditor() {
   ed.onKeyDown(async (e) => {
     if (e.browserEvent.key === 's' && e.metaKey) {
       const selectedNode = actions.getSelectedNode()
-      if (selectedNode) {
-        selectedNode.source = ed.getValue()
+      if (!selectedNode) {
+        return
       }
 
+      selectedNode.source = ed.getValue()
+
       store.saved = true
-      await actions.saveHosts()
+
+      if (selectedNode.checked) {
+        await actions.saveHosts()
+      } else {
+        await actions.saveConfig()
+      }
     }
   })
 
