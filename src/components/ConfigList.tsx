@@ -29,10 +29,16 @@ export const ConfigList = defineComponent({
               <el-link
                 icon='el-icon-delete'
                 underline={false}
+                title='Delete'
                 href='#'
                 onClick={() => {
                   actions.removeConfigNode(nodeData.id)
-                  if (nodeData.checked) {
+
+                  const needSwitchHosts = isNode(nodeData)
+                    ? nodeData.checked
+                    : nodeData.children.find((n) => n.checked)
+
+                  if (needSwitchHosts) {
                     actions.saveHosts()
                   } else {
                     actions.saveConfig()
@@ -46,6 +52,7 @@ export const ConfigList = defineComponent({
             const copyIcon = (
               <el-link
                 icon='el-icon-document-copy'
+                title='Copy'
                 underline={false}
                 href='#'
                 onClick={() => {
@@ -64,6 +71,7 @@ export const ConfigList = defineComponent({
             const singleModeIcon = (
               <div
                 class={['icon-dot', 'item-icon', isSingle ? '' : 'grey']}
+                title='Is single mode'
                 onClick={() => {
                   nodeData.mode = isSingle ? 'multi' : 'single'
 
