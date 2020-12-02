@@ -153,7 +153,7 @@ export const ConfigList = defineComponent({
           }
 
           const icon = isNode(nodeData) ? (
-            <el-icon class='el-icon-document' />
+            <el-icon class={nodeData.readonly ? 'el-icon-monitor' : 'el-icon-document'} />
           ) : (
             <el-icon class={node.expanded ? 'el-icon-folder-opened' : 'el-icon-folder'} />
           )

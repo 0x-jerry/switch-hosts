@@ -2,8 +2,9 @@ import { log } from 'debug'
 import fs from 'fs-extra'
 import { Config, ConfigNode } from '../define'
 import { confDir, confPath, platform } from '../const'
-import { getNode, sysHostsId } from '../common'
+import { getConfigNode, getNode, sysHostsId } from '../common'
 import { getHosts } from './utils'
+import { uuid } from '../utils'
 
 const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
@@ -34,6 +35,15 @@ export async function saveConfig(conf: Config) {
 
 export async function resetConfig() {
   const defaultConf = defaultConfig(getHosts())
+
+  const node = getConfigNode(defaultConf, sysHostsId)!
+
+  defaultConf.hosts.push({
+    ...node,
+    id: uuid(),
+    checked: true,
+    readonly: false
+  })
 
   await saveConfig(defaultConf)
 
