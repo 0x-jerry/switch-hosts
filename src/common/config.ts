@@ -33,6 +33,19 @@ export function visitConfigNode(conf: Config, visit: (node: ConfigNode) => void)
   })
 }
 
+export function getConfigNode(conf: Config, id: string) {
+  let node: ConfigHostItem | undefined
+
+  visitConfigItem(conf, (item) => {
+    if (item.id === id) {
+      node = item
+      return true
+    }
+  })
+
+  return node
+}
+
 export function getSchema(conf: Config, id: string) {
   let node: ConfigSchema | undefined
 

@@ -1,7 +1,9 @@
-import { defineComponent, reactive, toRaw } from 'vue'
-import { getNode, getSchema, hasCheck, isNode, isSchema } from '../common/config'
+import { defineComponent, nextTick, reactive } from 'vue'
+import { getConfigNode, getNode, getSchema, hasCheck, isNode, isSchema } from '../common/config'
 import { ConfigHostItem, ConfigSchema } from '../define'
 import { actions, store } from '../store'
+
+const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
 
 export const ConfigList = defineComponent({
   setup() {
@@ -18,11 +20,13 @@ export const ConfigList = defineComponent({
     })
 
     return () => {
-      const treeData = store.hosts.map((n) => toRaw(n))
+      const treeData = clone(store.hosts)
 
       const slots = {
-        default({ node, data }: { node: any; data: ConfigHostItem }) {
-          const isReadOnly = isNode(data) && data.readonly
+        default({ node, data }: any) {
+          const nodeData = getConfigNode(store, data.id)!
+
+          const isReadOnly = isNode(nodeData) && nodeData.readonly
 
           const icons = []
 
@@ -33,7 +37,7 @@ export const ConfigList = defineComponent({
                 underline={false}
                 href='#'
                 onClick={() => {
-                  actions.removeConfigNode(data.id)
+                  actions.removeConfigNode(nodeData.id)
                   actions.saveHosts()
                 }}
               />
@@ -42,18 +46,18 @@ export const ConfigList = defineComponent({
             icons.push(deleteIcon)
           }
 
-          if (isSchema(data)) {
-            const isSingle = data.mode === 'single'
+          if (isSchema(nodeData)) {
+            const isSingle = nodeData.mode === 'single'
             const singleModeIcon = (
               <div
                 class={['icon-dot', 'item-icon', isSingle ? '' : 'grey']}
                 onClick={() => {
-                  data.mode = isSingle ? 'multi' : 'single'
+                  nodeData.mode = isSingle ? 'multi' : 'single'
 
                   // 保证单选的时候只选择一个
-                  if (data.mode === 'single') {
+                  if (nodeData.mode === 'single') {
                     let checked = false
-                    data.children.forEach((n) => {
+                    nodeData.children.forEach((n) => {
                       if (!hasCheck(n) || !n.checked) {
                         return
                       }
@@ -65,6 +69,7 @@ export const ConfigList = defineComponent({
                       }
                     })
                   }
+
                   actions.saveHosts()
                 }}
               />
@@ -83,11 +88,11 @@ export const ConfigList = defineComponent({
             icons.push(readonlyIcon)
           }
 
-          if (hasCheck(data)) {
+          if (hasCheck(nodeData) && isNode(nodeData)) {
             const checkboxIcon = (
               <el-checkbox
                 class='item-icon'
-                v-model={data.checked}
+                v-model={nodeData.checked}
                 onClick={() => {
                   const isChildNode = node.parent.level === 1
                   const parentNode: ConfigSchema = node.parent.data
@@ -97,14 +102,15 @@ export const ConfigList = defineComponent({
                     const parentData = getSchema(store, parentNode.id)!
 
                     parentData.children.forEach((n) => {
-                      n.checked = n.id === data.id
+                      if (hasCheck(n) && n.id !== nodeData.id) {
+                        n.checked = false
+                      }
                     })
-                  } else {
-                    const nodeData = getNode(store, data.id)!
-                    nodeData.checked = !data.checked
                   }
 
-                  actions.saveHosts()
+                  setTimeout(() => {
+                    actions.saveHosts()
+                  }, 1)
                 }}
               />
             )
@@ -118,7 +124,7 @@ export const ConfigList = defineComponent({
             nodes.unshift(<div class='noop' />)
           }
 
-          const icon = isNode(data) ? (
+          const icon = isNode(nodeData) ? (
             <el-icon class='el-icon-document' />
           ) : (
             <el-icon class={node.expanded ? 'el-icon-folder-opened' : 'el-icon-folder'} />
@@ -154,15 +160,12 @@ export const ConfigList = defineComponent({
             actions.saveConfig()
           }}
           onNodeCollapse={(item: ConfigHostItem) => {
-            console.log('on-node-collapse')
             const idx = data.expanded.findIndex((id) => id === item.id)
             if (idx >= 0) {
               data.expanded.splice(idx, 1)
             }
           }}
           onNodeExpand={(item: ConfigHostItem) => {
-            // on node expand not working.
-            console.log('on-node-expand')
             data.expanded.push(item.id)
           }}
           v-slots={slots}
