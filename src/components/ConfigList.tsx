@@ -1,4 +1,4 @@
-import { defineComponent, nextTick, reactive } from 'vue'
+import { defineComponent, nextTick, reactive, watchEffect } from 'vue'
 import { getConfigNode, getNode, getSchema, hasCheck, isNode, isSchema } from '../common/config'
 import { ConfigHostItem, ConfigSchema } from '../define'
 import { actions, store } from '../store'
@@ -10,7 +10,14 @@ export const ConfigList = defineComponent({
     const defaultSelected = store.selected
 
     const data = reactive({
-      expanded: [defaultSelected]
+      expanded: [defaultSelected],
+      tree: null as any
+    })
+
+    watchEffect(() => {
+      const key = store.selected
+
+      data.tree && data.tree.setCurrentKey(key)
     })
 
     return () => {
@@ -173,6 +180,7 @@ export const ConfigList = defineComponent({
       return (
         <el-tree
           data={treeData}
+          ref={(e: any) => (data.tree = e)}
           node-key='id'
           highlight-current
           draggable={true}

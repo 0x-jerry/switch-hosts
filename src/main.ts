@@ -12,7 +12,7 @@ const setTitle = debounce(
   (title: string) => {
     document.title = title
   },
-  100,
+  500,
   {
     leading: false,
     trailing: true
