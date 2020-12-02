@@ -26,9 +26,9 @@ export const actions = {
     sendMsg(IPC_RENDER_EVENTS.UPDATE_CONFIG, globalStore.conf)
     actions.saveHosts(globalStore.conf)
   },
-  notification(opt: string | Partial<NotificationOption>, data?: any) {
+  notification(opt: Partial<NotificationOption>, data?: any) {
     const option: NotificationOption = {
-      type: 'none',
+      type: 'info',
       title: '',
       content: '',
       data

@@ -27,7 +27,7 @@ export interface Config {
 }
 
 export interface NotificationOption {
-  type: string
+  type: 'success' | 'warning' | 'info' | 'error'
   title: string
   content: string
   data: any

@@ -9,12 +9,35 @@ import {
 } from './common/config'
 import { Config, NotificationOption } from './define'
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
+import { ElNotification } from 'element-plus'
 import { uuid } from './utils'
+import debounce from 'lodash/debounce'
 
 export const store = reactive<Config>(window.__preload__.store)
 
 // @ts-ignore
 window.__store = store
+
+const saveHosts = debounce(
+  () => {
+    const hosts: string[] = []
+
+    visitConfigNode(store, (node) => node.checked && hosts.push(node.source))
+
+    const conf = getNode(store, sysHostsId)
+
+    if (conf) {
+      conf.source = hosts.join('\n')
+    }
+
+    return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
+  },
+  500,
+  {
+    leading: false,
+    trailing: true
+  }
+)
 
 export const actions = {
   getSelectedNode() {
@@ -52,19 +75,7 @@ export const actions = {
       store[key] = conf[key]
     }
   },
-  saveHosts() {
-    const hosts: string[] = []
-
-    visitConfigNode(store, (node) => node.checked && hosts.push(node.source))
-
-    const conf = getNode(store, sysHostsId)
-
-    if (conf) {
-      conf.source = hosts.join('\n')
-    }
-
-    return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
-  },
+  saveHosts,
   setPassword(password: string) {
     return ipcRenderer.invoke(IPC_EVENTS.SET_PASSWORD, password)
   }
@@ -78,5 +89,12 @@ ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf: Config) => {
 })
 
 ipcRenderer.on(IPC_RENDER_EVENTS.NOTIFICATION, (_, opt: NotificationOption) => {
-  console.log(opt)
+  ElNotification({
+    type: opt.type,
+    title: opt.title,
+    message: opt.content,
+    position: 'bottom-right',
+    duration: 1500,
+    showClose: true
+  })
 })

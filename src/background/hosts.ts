@@ -3,7 +3,6 @@ import { platform, sysHostsPath, tempHostsPath } from '../const'
 import { log } from './utils'
 import { exec } from 'child_process'
 import { actions, globalStore } from './store'
-import debounce from 'lodash/debounce'
 
 async function changeSysHosts(hosts: string) {
   if (platform === 'win32') {
@@ -24,22 +23,24 @@ async function changeSysHosts(hosts: string) {
   }
 }
 
-export const switchHosts = debounce(
-  async (hosts: string) => {
-    await fs.writeFile(tempHostsPath, hosts)
+export async function switchHosts(hosts: string) {
+  await fs.writeFile(tempHostsPath, hosts)
 
-    try {
-      await changeSysHosts(hosts)
-      log('Save hosts:\n %s', hosts)
-      actions.notification('Switch hosts successful!')
-    } catch (error) {
-      log('Switch host error: \n%s', error)
-      actions.notification('Switch hosts failed!', error)
-    }
-  },
-  500,
-  {
-    leading: false,
-    trailing: true
+  try {
+    await changeSysHosts(hosts)
+    log('Save hosts:\n %s', hosts)
+    actions.notification({
+      type: 'success',
+      content: 'Switch hosts successful!'
+    })
+  } catch (error) {
+    log('Switch host error: \n%s', error)
+    actions.notification(
+      {
+        type: 'error',
+        content: 'Switch hosts failed!'
+      },
+      error
+    )
   }
-)
+}

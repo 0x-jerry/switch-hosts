@@ -4,7 +4,7 @@ import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
 import { switchHosts } from './hosts'
 import { getNode, sysHostsId } from '../common/config'
-import { globalStore } from './store'
+import { actions, globalStore } from './store'
 import { eventBus, EVENTS } from './eventBus'
 
 const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
@@ -28,6 +28,8 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
     return conf
   },
   async [IPC_EVENTS.SAVE_HOSTS](_, conf: Config) {
+    const oldHostNode = getNode(globalStore.conf, sysHostsId)
+
     globalStore.conf = conf
     eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
 
@@ -35,7 +37,15 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
 
     const node = getNode(conf, sysHostsId)
 
-    if (node) {
+    if (node && oldHostNode) {
+      if (node.source.trim() === oldHostNode.source.trim()) {
+        actions.notification({
+          type: 'success',
+          content: 'Switch hosts successful!'
+        })
+        return
+      }
+
       await switchHosts(node.source)
     }
   },
