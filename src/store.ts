@@ -7,7 +7,7 @@ import {
   sysHostsId,
   visitConfigNode
 } from './common/config'
-import { Config } from './define'
+import { Config, NotificationOption } from './define'
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { uuid } from './utils'
 
@@ -70,9 +70,13 @@ export const actions = {
   }
 }
 
-ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf) => {
+ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf: Config) => {
   for (const key in conf) {
     // @ts-ignore
     store[key] = conf[key]
   }
+})
+
+ipcRenderer.on(IPC_RENDER_EVENTS.NOTIFICATION, (_, opt: NotificationOption) => {
+  console.log(opt)
 })

@@ -25,3 +25,10 @@ export interface Config {
   saved: boolean
   hosts: ConfigHostItem[]
 }
+
+export interface NotificationOption {
+  type: string
+  title: string
+  content: string
+  data: any
+}

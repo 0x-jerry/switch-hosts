@@ -1,6 +1,6 @@
 import { BrowserWindow, ipcMain } from 'electron'
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from '../const'
-import { Config } from '../define'
+import { Config, NotificationOption } from '../define'
 
 export const globalStore = {
   password: '',
@@ -25,5 +25,21 @@ export const actions = {
   updateConfig() {
     sendMsg(IPC_RENDER_EVENTS.UPDATE_CONFIG, globalStore.conf)
     actions.saveHosts(globalStore.conf)
+  },
+  notification(opt: string | Partial<NotificationOption>, data?: any) {
+    const option: NotificationOption = {
+      type: 'none',
+      title: '',
+      content: '',
+      data
+    }
+
+    if (typeof opt === 'string') {
+      option.content = opt
+    } else {
+      Object.assign(option, opt)
+    }
+
+    sendMsg(IPC_RENDER_EVENTS.NOTIFICATION, option)
   }
 }

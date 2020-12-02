@@ -25,7 +25,8 @@ export enum IPC_EVENTS {
 }
 
 export enum IPC_RENDER_EVENTS {
-  UPDATE_CONFIG = 'update-config'
+  UPDATE_CONFIG = 'update-config',
+  NOTIFICATION = 'notification'
 }
 
 export const isDebug = process.env.NODE_ENV === 'development'
