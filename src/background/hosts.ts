@@ -23,7 +23,7 @@ async function changeSysHosts(hosts: string) {
   }
 }
 
-export async function switchHosts(hosts: string) {
+export async function switchHosts(hosts: string): Promise<boolean> {
   await fs.writeFile(tempHostsPath, hosts)
 
   try {
@@ -31,16 +31,21 @@ export async function switchHosts(hosts: string) {
     log('Save hosts:\n %s', hosts)
     actions.notification({
       type: 'success',
-      content: 'Switch hosts successful!'
+      title: 'Switch hosts successful!'
     })
+
+    return true
   } catch (error) {
     log('Switch host error: \n%s', error)
-    actions.notification(
-      {
-        type: 'error',
-        content: 'Switch hosts failed!'
-      },
-      error
-    )
+    actions.notification({
+      type: 'error',
+      title: 'Switch hosts failed!',
+      content: error,
+      data: {
+        hosts
+      }
+    })
+
+    return false
   }
 }

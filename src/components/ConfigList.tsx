@@ -7,12 +7,6 @@ const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
 
 export const ConfigList = defineComponent({
   setup() {
-    const clickItem = (node: ConfigHostItem) => {
-      if (isNode(node)) {
-        store.selected = node.id
-      }
-    }
-
     const defaultSelected = store.selected
 
     const data = reactive({
@@ -44,6 +38,21 @@ export const ConfigList = defineComponent({
             )
 
             icons.push(deleteIcon)
+          } else {
+            const copyIcon = (
+              <el-link
+                icon='el-icon-document-copy'
+                underline={false}
+                href='#'
+                onClick={() => {
+                  if (isNode(nodeData)) {
+                    actions.addConfigNode(nodeData.label, false, nodeData.source)
+                  }
+                }}
+              />
+            )
+
+            icons.push(copyIcon)
           }
 
           if (isSchema(nodeData)) {
@@ -154,7 +163,11 @@ export const ConfigList = defineComponent({
           expand-on-click-node={false}
           default-expanded-keys={data.expanded}
           current-node-key={defaultSelected}
-          onNodeClick={clickItem}
+          onNodeClick={(node: ConfigHostItem) => {
+            if (isNode(node)) {
+              store.selected = node.id
+            }
+          }}
           onNodeDrop={() => {
             store.hosts = treeData
             actions.saveConfig()

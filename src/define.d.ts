@@ -30,5 +30,5 @@ export interface NotificationOption {
   type: 'success' | 'warning' | 'info' | 'error'
   title: string
   content: string
-  data: any
+  data?: any
 }

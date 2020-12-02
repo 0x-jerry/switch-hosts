@@ -19,18 +19,22 @@ export const store = reactive<Config>(window.__preload__.store)
 window.__store = store
 
 const saveHosts = debounce(
-  () => {
+  async () => {
     const hosts: string[] = []
 
     visitConfigNode(store, (node) => node.checked && hosts.push(node.source))
 
-    const conf = getNode(store, sysHostsId)
+    const conf = getNode(store, sysHostsId)!
 
-    if (conf) {
-      conf.source = hosts.join('\n')
+    const oldSource = conf.source
+
+    conf.source = hosts.join('\n')
+
+    const successful = await ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
+
+    if (!successful) {
+      conf.source = oldSource
     }
-
-    return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
   },
   500,
   {
@@ -46,7 +50,7 @@ export const actions = {
   removeConfigNode(id: string) {
     return deleteConfigNode(store, id)
   },
-  addConfigNode(label: string, isGroup: boolean) {
+  addConfigNode(label: string, isGroup: boolean, source?: string) {
     if (isGroup) {
       store.hosts.push({
         label,
@@ -59,7 +63,7 @@ export const actions = {
         label,
         id: uuid(),
         checked: false,
-        source: ''
+        source: source || ''
       })
     }
 
@@ -89,6 +93,8 @@ ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf: Config) => {
 })
 
 ipcRenderer.on(IPC_RENDER_EVENTS.NOTIFICATION, (_, opt: NotificationOption) => {
+  console.log(opt)
+
   ElNotification({
     type: opt.type,
     title: opt.title,
