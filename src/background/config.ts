@@ -9,7 +9,7 @@ import { uuid } from '../utils'
 const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
     id: sysHostsId,
-    label: 'hosts',
+    label: 'Hosts',
     source: hosts,
     readonly: true
   }

@@ -8,9 +8,10 @@ export const Sidebar = defineComponent(() => {
   const { NewHostDialog, open } = useNewHostDialog()
 
   return () => {
-    const clearIcon = (
+    const resetIcon = (
       <el-link
-        icon='toolbar-icon el-icon-delete'
+        icon='toolbar-icon el-icon-refresh'
+        title='Reset hosts config'
         underline={false}
         href='#'
         onClick={() => actions.resetConfig()}
@@ -23,7 +24,7 @@ export const Sidebar = defineComponent(() => {
         <div class='border-t sidebar-toolbar'>
           <el-link icon='toolbar-icon el-icon-plus' underline={false} href='#' onClick={open} />
           <div class='align-end'>
-            {isDebug && clearIcon}
+            {isDebug && resetIcon}
             <el-link icon='toolbar-icon el-icon-info' underline={false} href='#' />
           </div>
         </div>
