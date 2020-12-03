@@ -1,12 +1,13 @@
 {
   "name": "switch-hosts",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "private": true,
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "test:unit": "vue-cli-service test:unit",
     "lint": "vue-cli-service lint",
+    "changelog": "conventional-changelog -p angular -i CHANGELOG.md -s",
     "electron:build": "vue-cli-service electron:build --publish never",
     "electron:generate-icons": "electron-icon-builder --input=./public/logo.png --output=build --flatten",
     "electron:serve": "vue-cli-service electron:serve",
@@ -43,6 +44,7 @@
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/eslint-config-typescript": "^7.0.0",
     "@vue/test-utils": "^2.0.0-0",
+    "conventional-changelog-cli": "^2.1.1",
     "electron": "^11.0.3",
     "electron-devtools-installer": "^3.1.0",
     "electron-icon-builder": "^1.0.2",
