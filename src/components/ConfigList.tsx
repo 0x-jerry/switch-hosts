@@ -131,7 +131,7 @@ export const ConfigList = defineComponent({
               <el-checkbox
                 class='item-icon'
                 v-model={nodeData.checked}
-                onClick={() => {
+                onChange={() => {
                   const isChildNode = node.parent.level === 1
                   const parentNode: ConfigGroup = node.parent.data
                   const isRadio = isChildNode && parentNode.mode === 'single'
@@ -146,9 +146,7 @@ export const ConfigList = defineComponent({
                     })
                   }
 
-                  setTimeout(() => {
-                    actions.saveHosts()
-                  }, 1)
+                  actions.saveHosts()
                 }}
               />
             )

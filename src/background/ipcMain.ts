@@ -1,14 +1,15 @@
-import { ipcMain, IpcMainInvokeEvent } from 'electron'
+import { ipcMain } from 'electron'
 import { getConfig, resetConfig, saveConfig } from './config'
 import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
 import { switchHosts } from './hosts'
-import { sysHostsId } from '../common/config'
+import { sysHostsId, visitConfigNode } from '../common/config'
 import { actions, globalStore } from './store'
 import { eventBus, EVENTS } from './eventBus'
+import { getHosts } from './utils'
 
-export const ipcMainEvents: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
-  async [IPC_EVENTS.SAVE_CONFIG](_, conf: Config) {
+export const ipcActions = {
+  async [IPC_EVENTS.SAVE_CONFIG](conf: Config) {
     globalStore.conf = conf
     eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
     return saveConfig(conf)
@@ -29,15 +30,15 @@ export const ipcMainEvents: Record<string, (e: IpcMainInvokeEvent, ...args: any)
 
     return conf
   },
-  async [IPC_EVENTS.SAVE_HOSTS](_, conf: Config): Promise<boolean> {
-    const oldHostSource = globalStore.conf.files[sysHostsId]
+  async [IPC_EVENTS.SAVE_HOSTS](conf: Config): Promise<boolean> {
+    const hosts: string[] = []
+    visitConfigNode(conf, (node) => node.checked && hosts.push(conf.files[node.id]))
+    conf.files[sysHostsId] = hosts.join('\n')
 
-    globalStore.conf = conf
-    eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
+    await ipcActions[IPC_EVENTS.SAVE_CONFIG](conf)
 
-    await saveConfig(conf)
-
-    const newHostSource = conf.files[sysHostsId]
+    const newHostSource = globalStore.conf.files[sysHostsId]
+    const oldHostSource = getHosts()
 
     if (newHostSource.trim() === oldHostSource.trim()) {
       actions.notification({
@@ -55,9 +56,15 @@ export const ipcMainEvents: Record<string, (e: IpcMainInvokeEvent, ...args: any)
 
     return result
   },
-  [IPC_EVENTS.SET_PASSWORD](_, password: string) {
+  [IPC_EVENTS.SET_PASSWORD](password: string) {
     globalStore.password = password
   }
 }
 
-Object.keys(ipcMainEvents).forEach((key) => ipcMain.handle(key, ipcMainEvents[key]))
+Object.keys(ipcActions).forEach((key) =>
+  ipcMain.handle(
+    key,
+    // @ts-ignore
+    (_, ...args) => ipcActions[key](...args)
+  )
+)

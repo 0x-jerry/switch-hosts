@@ -1,7 +1,7 @@
-import { BrowserWindow, ipcMain } from 'electron'
+import { BrowserWindow } from 'electron'
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from '../const'
 import { Config, NotificationOption } from '../define'
-import { ipcMainEvents } from './ipcMain'
+import { ipcActions } from './ipcMain'
 
 export const globalStore = {
   password: '',
@@ -21,7 +21,7 @@ function sendMsg(channel: string, ...args: any) {
 
 export const actions = {
   saveHosts(conf: Config) {
-    ipcMainEvents[IPC_EVENTS.SAVE_HOSTS]({} as any, conf)
+    ipcActions[IPC_EVENTS.SAVE_HOSTS](conf)
   },
   updateConfig() {
     sendMsg(IPC_RENDER_EVENTS.UPDATE_CONFIG, globalStore.conf)

@@ -6,23 +6,10 @@ import 'element-plus/lib/theme-chalk/index.css'
 import { actions, store } from './store'
 import { title } from './const'
 import { sysHostsId, visitConfigNode } from './common'
-import debounce from 'lodash/debounce'
-
-const setTitle = debounce(
-  (title: string) => {
-    document.title = title
-  },
-  500,
-  {
-    leading: false,
-    trailing: true
-  }
-)
 
 watchEffect(() => {
   const node = actions.getSelectedNode()!
 
-  // const saved = store.saved ? '' : ' *'
   const readonly = node.readonly ? '(#)' : ''
   const file = `${node.label}`
 
@@ -30,7 +17,7 @@ watchEffect(() => {
 
   const label = `${isApplied}${title}-${file}${readonly}`
 
-  setTitle(label)
+  document.title = label
 })
 
 createApp(App)

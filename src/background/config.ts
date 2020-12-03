@@ -6,6 +6,29 @@ import { getHosts, log } from './utils'
 import { uuid } from '../utils'
 import cloneDeep from 'lodash/cloneDeep'
 
+const migrateStrategy: Record<string, (conf: any) => any> = {
+  '1.0.0'(conf: ConfigV100): ConfigV100 {
+    return conf
+  },
+  '1.1.0'(conf: ConfigV100): ConfigV101 {
+    const files: Record<string, string> = {}
+
+    visitConfigNode(conf as any, (node: any) => {
+      files[node.id] = node.source
+      node.saved = true
+      delete node.source
+    })
+
+    // @ts-ignore
+    delete conf.saved
+
+    return {
+      ...conf,
+      files
+    }
+  }
+}
+
 const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
     id: sysHostsId,
@@ -14,11 +37,13 @@ const defaultConfig: (hosts: string) => Config = (hosts) => {
     readonly: true
   }
 
+  const latestVersion = Object.keys(migrateStrategy).pop()!
+
   return {
     env: {
       platform
     },
-    version: '1.0.0',
+    version: latestVersion,
     saved: true,
     selected: sysHostsId,
     hosts: [node],
@@ -55,29 +80,6 @@ export async function resetConfig() {
   await saveConfig(defaultConf)
 
   return defaultConf
-}
-
-const migrateStrategy: Record<string, (conf: any) => any> = {
-  '1.0.0'(conf: ConfigV100): ConfigV100 {
-    return conf
-  },
-  '1.1.0'(conf: ConfigV100): ConfigV101 {
-    const files: Record<string, string> = {}
-
-    visitConfigNode(conf as any, (node: any) => {
-      files[node.id] = node.source
-      node.saved = true
-      delete node.source
-    })
-
-    // @ts-ignore
-    delete conf.saved
-
-    return {
-      ...conf,
-      files
-    }
-  }
 }
 
 export function migrateConfig(conf: any): Config {
