@@ -14,6 +14,7 @@ jobs:
 
     outputs:
       upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+      release_tag: ${{ steps.get_version.outputs.version }}
 
     steps:
       - uses: actions/checkout@v2
@@ -28,6 +29,10 @@ jobs:
           release_name: Release ${{ github.ref }}
           body_path: release-note.md
 
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3)
+
   build-win:
     needs:
       - release
@@ -36,11 +41,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            name: switch-hosts-v${{ ${GITHUB_REF##*/} }}.AppImage
+            name: switch-hosts-v${{ needs.prepare.outputs.release_tag }}.AppImage
           - os: macos-latest
-            name: switch-hosts-v${{ ${GITHUB_REF##*/} }}.dmg
+            name: switch-hosts-v${{ needs.prepare.outputs.release_tag }}.dmg
           - os: windows-latest
-            name: switch-hosts-v${{ ${GITHUB_REF##*/} }}.exe
+            name: switch-hosts-v${{ needs.prepare.outputs.release_tag }}.exe
 
     runs-on: ${{ matrix.os }}
 
