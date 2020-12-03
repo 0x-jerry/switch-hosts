@@ -1,12 +1,12 @@
-import { Config, ConfigHostItem, ConfigNode, ConfigSchema } from '../define'
+import { Config, ConfigHostItem, ConfigNode, ConfigGroup } from '../define'
 
 export const sysHostsId = 'sys-hosts'
-export function isSchema(c: ConfigSchema | ConfigNode): c is ConfigSchema {
-  return !!(c as ConfigSchema).mode
+export function isGroup(c: ConfigGroup | ConfigNode): c is ConfigGroup {
+  return !!(c as ConfigGroup).mode
 }
 
-export function isNode(c: ConfigSchema | ConfigNode): c is ConfigNode {
-  return !isSchema(c)
+export function isNode(c: ConfigGroup | ConfigNode): c is ConfigNode {
+  return !isGroup(c)
 }
 
 export const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
@@ -19,7 +19,7 @@ export function visitConfigItem(conf: Config, visit: (item: ConfigHostItem) => b
   for (const node of conf.hosts) {
     visit(node)
 
-    if (isSchema(node)) {
+    if (isGroup(node)) {
       for (const item of node.children) {
         visit(item)
       }
@@ -33,7 +33,7 @@ export function visitConfigNode(conf: Config, visit: (node: ConfigNode) => void)
   })
 }
 
-export function getConfigNode(conf: Config, id: string) {
+export function getConfigItem(conf: Config, id: string) {
   let node: ConfigHostItem | undefined
 
   visitConfigItem(conf, (item) => {
@@ -46,11 +46,11 @@ export function getConfigNode(conf: Config, id: string) {
   return node
 }
 
-export function getSchema(conf: Config, id: string) {
-  let node: ConfigSchema | undefined
+export function getGroup(conf: Config, id: string) {
+  let node: ConfigGroup | undefined
 
   visitConfigItem(conf, (item) => {
-    if (isSchema(item) && item.id === id) {
+    if (isGroup(item) && item.id === id) {
       node = item
       return true
     }
@@ -84,7 +84,7 @@ export function deleteConfigNode(conf: Config, id: string) {
       break
     }
 
-    if (isSchema(file)) {
+    if (isGroup(file)) {
       let subIdx = 0
       for (const node of file.children) {
         if (node.id === id) {

@@ -1,6 +1,6 @@
 import { defineComponent, reactive, watchEffect } from 'vue'
-import { getConfigNode, getSchema, hasCheck, isNode, isSchema } from '../common/config'
-import { ConfigHostItem, ConfigSchema } from '../define'
+import { getConfigItem, getGroup, hasCheck, isNode, isGroup } from '../common/config'
+import { ConfigHostItem, ConfigGroup } from '../define'
 import { actions, store } from '../store'
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -24,7 +24,7 @@ export const ConfigList = defineComponent({
 
       const slots = {
         default({ node, data }: any) {
-          const nodeData = getConfigNode(store, data.id)!
+          const nodeData = getConfigItem(store, data.id)!
 
           if (!nodeData) {
             return
@@ -76,7 +76,7 @@ export const ConfigList = defineComponent({
             icons.push(copyIcon)
           }
 
-          if (isSchema(nodeData)) {
+          if (isGroup(nodeData)) {
             const isSingle = nodeData.mode === 'single'
             const singleModeIcon = (
               <div
@@ -133,11 +133,11 @@ export const ConfigList = defineComponent({
                 v-model={nodeData.checked}
                 onClick={() => {
                   const isChildNode = node.parent.level === 1
-                  const parentNode: ConfigSchema = node.parent.data
+                  const parentNode: ConfigGroup = node.parent.data
                   const isRadio = isChildNode && parentNode.mode === 'single'
 
                   if (isRadio) {
-                    const parentData = getSchema(store, parentNode.id)!
+                    const parentData = getGroup(store, parentNode.id)!
 
                     parentData.children.forEach((n) => {
                       if (hasCheck(n) && n.id !== nodeData.id) {
@@ -188,7 +188,7 @@ export const ConfigList = defineComponent({
           highlight-current
           draggable={true}
           allow-drop={(draggingNode: any, dropNode: any, type: string) =>
-            type === 'inner' ? isSchema(dropNode.data) && !isSchema(draggingNode.data) : true
+            type === 'inner' ? isGroup(dropNode.data) && !isGroup(draggingNode.data) : true
           }
           expand-on-click-node={false}
           default-expanded-keys={data.expanded}

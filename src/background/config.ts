@@ -1,7 +1,7 @@
 import fs from 'fs-extra'
 import { Config, ConfigNode, ConfigV100, ConfigV101 } from '../define'
 import { confDir, confPath, platform } from '../const'
-import { getConfigNode, sysHostsId, visitConfigNode } from '../common'
+import { getConfigItem, sysHostsId, visitConfigNode } from '../common'
 import { getHosts, log } from './utils'
 import { uuid } from '../utils'
 import cloneDeep from 'lodash/cloneDeep'
@@ -39,7 +39,7 @@ export async function saveConfig(conf: Config) {
 export async function resetConfig() {
   const defaultConf = defaultConfig(getHosts())
 
-  const node = getConfigNode(defaultConf, sysHostsId)!
+  const node = getConfigItem(defaultConf, sysHostsId)!
 
   const newNode = {
     ...node,

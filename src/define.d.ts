@@ -9,12 +9,12 @@ export interface ConfigNode extends ConfigItem {
   readonly: boolean
 }
 
-export interface ConfigSchema extends ConfigItem {
+export interface ConfigGroup extends ConfigItem {
   mode: 'single' | 'multi'
   children: ConfigNode[]
 }
 
-export type ConfigHostItem = ConfigSchema | ConfigNode
+export type ConfigHostItem = ConfigGroup | ConfigNode
 
 export interface ConfigV100 {
   env: {

@@ -1,7 +1,7 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions, Tray } from 'electron'
 import path from 'path'
 import { hasCheck, isNode } from '../common'
-import { ConfigNode, ConfigSchema } from '../define'
+import { ConfigNode, ConfigGroup } from '../define'
 import { eventBus, EVENTS } from './eventBus'
 import { actions, globalStore } from './store'
 
@@ -31,7 +31,7 @@ app.whenReady().then(() => {
       }
     )
 
-    function nodeToMenuItem(node: ConfigNode, parent?: ConfigSchema): MenuItemConstructorOptions {
+    function nodeToMenuItem(node: ConfigNode, parent?: ConfigGroup): MenuItemConstructorOptions {
       const isSingle = parent && parent.mode === 'single'
 
       return {
