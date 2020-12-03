@@ -28,7 +28,7 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
     return conf
   },
   async [IPC_EVENTS.SAVE_HOSTS](_, conf: Config): Promise<boolean> {
-    const oldHostSource = conf.files[sysHostsId]
+    const oldHostSource = globalStore.conf.files[sysHostsId]
 
     globalStore.conf = conf
     eventBus.emit(EVENTS.UPDATE_TRAY_MENU)

@@ -33,7 +33,7 @@ export async function saveConfig(conf: Config) {
 
   await fs.writeFile(confPath, JSON.stringify(conf, null, 2))
 
-  log('Save config: \n%o', conf)
+  log('Save config: \n%O', conf)
 }
 
 export async function resetConfig() {
@@ -104,7 +104,7 @@ export async function getConfig(): Promise<Config> {
   const defaultConf = defaultConfig(hosts)
 
   if (!(await fs.pathExists(confPath))) {
-    log('Config is not exist: \n%o', defaultConf)
+    log('Config is not exist: \n%O', defaultConf)
     return defaultConf
   }
 
@@ -122,10 +122,10 @@ export async function getConfig(): Promise<Config> {
 
     conf.files[sysHostsId] = hosts
 
-    log('Config: \n%o', conf)
+    log('Config: \n%O', conf)
     return conf
   } catch (error) {
-    log('Load config error: \n%o', error)
+    log('Load config error: %s', error)
 
     saveConfig(defaultConf)
 

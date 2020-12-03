@@ -172,7 +172,7 @@ export const ConfigList = defineComponent({
             <div class='config-item'>
               <span class='config-label'>
                 <span style={{ marginRight: '5px' }}>{icon}</span>
-                {node.label}
+                {nodeData.label} {isNode(nodeData) && nodeData.saved ? '' : '*'}
               </span>
               {...nodes}
             </div>
