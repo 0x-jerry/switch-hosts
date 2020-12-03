@@ -10,7 +10,7 @@ async function changeSysHosts(hosts: string) {
   } else {
     return new Promise((resolve, reject) => {
       exec(
-        `echo '${globalStore.password}' | sudo -S mv ${tempHostsPath} ${sysHostsPath}`,
+        `echo '${globalStore.password}' | sudo -S cp ${tempHostsPath} ${sysHostsPath}`,
         (err, stdout, stderr) => {
           if (err) {
             reject(stderr)
@@ -23,6 +23,9 @@ async function changeSysHosts(hosts: string) {
   }
 }
 
+/**
+ * @returns 是否切换成功
+ */
 export async function switchHosts(hosts: string): Promise<boolean> {
   await fs.writeFile(tempHostsPath, hosts)
 
@@ -37,6 +40,19 @@ export async function switchHosts(hosts: string): Promise<boolean> {
     return true
   } catch (error) {
     log('Switch host error: \n%s', error)
+
+    const reasons = ['Permission denied', 'incorrect password', 'Password:Sorry, try again.']
+
+    const needPassword = !!reasons.find((reason) =>
+      String(error)
+        .toLocaleLowerCase()
+        .includes(reason.toLowerCase())
+    )
+
+    if (needPassword) {
+      actions.showPasswordDialog()
+    }
+
     actions.notification({
       type: 'error',
       title: 'Switch hosts failed!',

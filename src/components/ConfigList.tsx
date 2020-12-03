@@ -1,9 +1,8 @@
 import { defineComponent, reactive, watchEffect } from 'vue'
-import { getConfigNode, getSchema, hasCheck, isNode, isSchema, sysHostsId } from '../common/config'
-import { ConfigHostItem, ConfigSchema } from '../define'
+import { getConfigItem, getGroup, hasCheck, isNode, isGroup } from '../common/config'
+import { ConfigHostItem, ConfigGroup } from '../define'
 import { actions, store } from '../store'
-
-const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
+import cloneDeep from 'lodash/cloneDeep'
 
 export const ConfigList = defineComponent({
   setup() {
@@ -21,11 +20,11 @@ export const ConfigList = defineComponent({
     })
 
     return () => {
-      const treeData = clone(store.hosts)
+      const treeData = cloneDeep(store.hosts)
 
       const slots = {
         default({ node, data }: any) {
-          const nodeData = getConfigNode(store, data.id)!
+          const nodeData = getConfigItem(store, data.id)!
 
           if (!nodeData) {
             return
@@ -68,7 +67,7 @@ export const ConfigList = defineComponent({
                 href='#'
                 onClick={() => {
                   if (isNode(nodeData)) {
-                    actions.addConfigNode(nodeData.label, false, nodeData.source)
+                    actions.addConfigNode(nodeData.label, false, store.files[nodeData.id])
                   }
                 }}
               />
@@ -77,7 +76,7 @@ export const ConfigList = defineComponent({
             icons.push(copyIcon)
           }
 
-          if (isSchema(nodeData)) {
+          if (isGroup(nodeData)) {
             const isSingle = nodeData.mode === 'single'
             const singleModeIcon = (
               <div
@@ -132,13 +131,13 @@ export const ConfigList = defineComponent({
               <el-checkbox
                 class='item-icon'
                 v-model={nodeData.checked}
-                onClick={() => {
+                onChange={() => {
                   const isChildNode = node.parent.level === 1
-                  const parentNode: ConfigSchema = node.parent.data
+                  const parentNode: ConfigGroup = node.parent.data
                   const isRadio = isChildNode && parentNode.mode === 'single'
 
                   if (isRadio) {
-                    const parentData = getSchema(store, parentNode.id)!
+                    const parentData = getGroup(store, parentNode.id)!
 
                     parentData.children.forEach((n) => {
                       if (hasCheck(n) && n.id !== nodeData.id) {
@@ -147,9 +146,7 @@ export const ConfigList = defineComponent({
                     })
                   }
 
-                  setTimeout(() => {
-                    actions.saveHosts()
-                  }, 1)
+                  actions.saveHosts()
                 }}
               />
             )
@@ -173,7 +170,7 @@ export const ConfigList = defineComponent({
             <div class='config-item'>
               <span class='config-label'>
                 <span style={{ marginRight: '5px' }}>{icon}</span>
-                {node.label}
+                {nodeData.label} {isNode(nodeData) && nodeData.saved ? '' : '*'}
               </span>
               {...nodes}
             </div>
@@ -189,7 +186,7 @@ export const ConfigList = defineComponent({
           highlight-current
           draggable={true}
           allow-drop={(draggingNode: any, dropNode: any, type: string) =>
-            type === 'inner' ? isSchema(dropNode.data) && !isSchema(draggingNode.data) : true
+            type === 'inner' ? isGroup(dropNode.data) && !isGroup(draggingNode.data) : true
           }
           expand-on-click-node={false}
           default-expanded-keys={data.expanded}

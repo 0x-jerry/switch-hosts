@@ -15,7 +15,10 @@ const config = {
     electronBuilder: {
       preload: 'src/preload.ts',
       nodeIntegration: true,
-      mainProcessWatch: ['src/background']
+      mainProcessWatch: ['src/background'],
+      builderOptions: {
+        artifactName: '${name}-v${version}.${ext}'
+      }
     }
   }
 }

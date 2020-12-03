@@ -1,14 +1,15 @@
-import { ipcMain, IpcMainInvokeEvent } from 'electron'
+import { ipcMain } from 'electron'
 import { getConfig, resetConfig, saveConfig } from './config'
 import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
 import { switchHosts } from './hosts'
-import { getNode, sysHostsId } from '../common/config'
+import { getCombineSource, sysHostsId } from '../common/config'
 import { actions, globalStore } from './store'
 import { eventBus, EVENTS } from './eventBus'
+import { getHosts } from './utils'
 
-const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
-  async [IPC_EVENTS.SAVE_CONFIG](_, conf: Config) {
+export const ipcActions = {
+  async [IPC_EVENTS.SAVE_CONFIG](conf: Config) {
     globalStore.conf = conf
     eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
     return saveConfig(conf)
@@ -25,19 +26,19 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
 
     globalStore.conf = conf
 
-    return conf
-  },
-  async [IPC_EVENTS.SAVE_HOSTS](_, conf: Config): Promise<boolean> {
-    const oldHostNode = getNode(globalStore.conf, sysHostsId)!
-
-    globalStore.conf = conf
     eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
 
-    await saveConfig(conf)
+    return conf
+  },
+  async [IPC_EVENTS.SAVE_HOSTS](conf: Config): Promise<boolean> {
+    conf.files[sysHostsId] = getCombineSource(conf)
 
-    const node = getNode(conf, sysHostsId)!
+    await ipcActions[IPC_EVENTS.SAVE_CONFIG](conf)
 
-    if (node.source.trim() === oldHostNode.source.trim()) {
+    const newHostSource = globalStore.conf.files[sysHostsId]
+    const oldHostSource = getHosts()
+
+    if (newHostSource.trim() === oldHostSource.trim()) {
       actions.notification({
         type: 'success',
         title: 'Switch hosts successful!'
@@ -45,17 +46,26 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
       return true
     }
 
-    const result = await switchHosts(node.source)
+    const result = await switchHosts(newHostSource)
 
     if (!result) {
-      node.source = oldHostNode.source
+      conf.files[sysHostsId] = oldHostSource
     }
+
+    actions.updateSource(sysHostsId, newHostSource)
 
     return result
   },
-  [IPC_EVENTS.SET_PASSWORD](_, password: string) {
+  [IPC_EVENTS.SET_PASSWORD](password: string) {
     globalStore.password = password
+    actions.saveHosts(globalStore.conf)
   }
 }
 
-Object.keys(events).forEach((key) => ipcMain.handle(key, events[key]))
+Object.keys(ipcActions).forEach((key) =>
+  ipcMain.handle(
+    key,
+    // @ts-ignore
+    (_, ...args) => ipcActions[key](...args)
+  )
+)

@@ -5,18 +5,18 @@ export interface ConfigItem {
 }
 
 export interface ConfigNode extends ConfigItem {
-  source: string
-  readonly?: boolean
+  saved: boolean
+  readonly: boolean
 }
 
-export interface ConfigSchema extends ConfigItem {
+export interface ConfigGroup extends ConfigItem {
   mode: 'single' | 'multi'
   children: ConfigNode[]
 }
 
-export type ConfigHostItem = ConfigSchema | ConfigNode
+export type ConfigHostItem = ConfigGroup | ConfigNode
 
-export interface Config {
+export interface ConfigV100 {
   env: {
     platform: string
   }
@@ -25,6 +25,21 @@ export interface Config {
   saved: boolean
   hosts: ConfigHostItem[]
 }
+
+export interface ConfigV101 {
+  env: {
+    platform: string
+  }
+  version: string
+  selected: string
+  hosts: ConfigHostItem[]
+  /**
+   * id => source
+   */
+  files: Record<string, string>
+}
+
+export type Config = ConfigV101
 
 export interface NotificationOption {
   type: 'success' | 'warning' | 'info' | 'error'

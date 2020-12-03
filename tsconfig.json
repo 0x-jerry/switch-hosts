@@ -9,8 +9,9 @@
     "skipLibCheck": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
+    "resolveJsonModule": true,
     "sourceMap": true,
-    "types": ["webpack-env"],
+    "types": ["webpack-env", "jest"],
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"]
   },
   "include": ["src"],

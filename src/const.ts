@@ -1,5 +1,6 @@
 import path from 'path'
 import os from 'os'
+import pkg from '../package.json'
 
 export const title = 'Switch Hosts'
 
@@ -26,7 +27,11 @@ export enum IPC_EVENTS {
 
 export enum IPC_RENDER_EVENTS {
   UPDATE_CONFIG = 'update-config',
-  NOTIFICATION = 'notification'
+  UPDATE_SOURCE = 'update-source',
+  NOTIFICATION = 'notification',
+  NEED_PASSWORD = 'need-password'
 }
 
 export const isDebug = process.env.NODE_ENV === 'development'
+
+export const version = pkg.version

@@ -1,0 +1,86 @@
+# This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
+# For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
+
+name: Release a new version
+
+on:
+  push:
+    tags:
+      - v*
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    outputs:
+      upload_url: ${{ steps.create_release.outputs.upload_url }} # This pulls from the CREATE RELEASE step above, referencing it's ID to get its outputs object, which include a `upload_url`. See this blog post for more info: https://jasonet.co/posts/new-features-of-github-actions/#passing-data-to-future-steps
+      release_tag: ${{ steps.get_version.outputs.version }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          body_path: release-note.md
+
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3)
+
+  build:
+    needs:
+      - release
+
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            name: switch-hosts-${{ needs.release.outputs.release_tag }}.AppImage
+          - os: macos-latest
+            name: switch-hosts-${{ needs.release.outputs.release_tag }}.dmg
+          - os: windows-latest
+            name: switch-hosts-${{ needs.release.outputs.release_tag }}.exe
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: test
+        run: echo "${{ matrix.name }}"
+
+      - name: Use Node.js 12.x
+        uses: actions/setup-node@v1
+        with:
+          node-version: 12.x
+
+      - name: Cache node_modules
+        uses: actions/cache@v2
+        with:
+          path: |
+            ~/cache
+            !~/cache/exclude
+            **/node_modules
+          key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
+
+      - name: Build
+        run: |
+          yarn 
+          yarn electron:build
+
+      - name: Upload Release Asset
+        id: upload-release-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ needs.release.outputs.upload_url }}
+          asset_path: ${{ github.workspace }}/dist_electron/${{ matrix.name }}
+          asset_name: ${{ matrix.name }}
+          asset_content_type: application/octet-stream

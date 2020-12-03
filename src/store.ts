@@ -1,47 +1,15 @@
 import { ipcRenderer } from 'electron'
 import { reactive, toRaw } from 'vue'
-import {
-  deleteConfigNode,
-  getNode,
-  getSelectedNode,
-  sysHostsId,
-  visitConfigNode
-} from './common/config'
+import { deleteConfigNode, getSelectedNode, sysHostsId } from './common/config'
 import { Config, NotificationOption } from './define'
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { ElNotification } from 'element-plus'
 import { uuid } from './utils'
-import debounce from 'lodash/debounce'
 
 export const store = reactive<Config>(window.__preload__.store)
 
 // @ts-ignore
 window.__store = store
-
-const saveHosts = debounce(
-  async () => {
-    const hosts: string[] = []
-
-    visitConfigNode(store, (node) => node.checked && hosts.push(node.source))
-
-    const conf = getNode(store, sysHostsId)!
-
-    const oldSource = conf.source
-
-    conf.source = hosts.join('\n')
-
-    const successful = await ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
-
-    if (!successful) {
-      conf.source = oldSource
-    }
-  },
-  500,
-  {
-    leading: false,
-    trailing: true
-  }
-)
 
 export const actions = {
   getSelectedNode() {
@@ -66,12 +34,17 @@ export const actions = {
         children: []
       })
     } else {
-      store.hosts.push({
+      const node = {
         label,
         id: uuid(),
         checked: false,
-        source: source || ''
-      })
+        readonly: false,
+        saved: true
+      }
+
+      store.hosts.push(node)
+
+      store.files[node.id] = source || ''
     }
 
     return actions.saveConfig()
@@ -86,7 +59,9 @@ export const actions = {
       store[key] = conf[key]
     }
   },
-  saveHosts,
+  saveHosts() {
+    return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
+  },
   setPassword(password: string) {
     return ipcRenderer.invoke(IPC_EVENTS.SET_PASSWORD, password)
   }
@@ -97,6 +72,10 @@ ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf: Config) => {
     // @ts-ignore
     store[key] = conf[key]
   }
+})
+
+ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_SOURCE, (_, id: string, source: string) => {
+  store.files[id] = source
 })
 
 ipcRenderer.on(IPC_RENDER_EVENTS.NOTIFICATION, (_, opt: NotificationOption) => {

@@ -1,27 +1,55 @@
-import { log } from 'debug'
 import fs from 'fs-extra'
-import { Config, ConfigNode } from '../define'
+import { Config, ConfigNode, ConfigV100, ConfigV101 } from '../define'
 import { confDir, confPath, platform } from '../const'
-import { getConfigNode, getNode, sysHostsId } from '../common'
-import { getHosts } from './utils'
+import { getConfigItem, sysHostsId, visitConfigNode } from '../common'
+import { getHosts, log } from './utils'
 import { uuid } from '../utils'
+import cloneDeep from 'lodash/cloneDeep'
+
+const migrateStrategy: Record<string, (conf: any) => any> = {
+  '1.0.0'(conf: ConfigV100): ConfigV100 {
+    return conf
+  },
+  '1.1.0'(conf: ConfigV100): ConfigV101 {
+    const files: Record<string, string> = {}
+
+    visitConfigNode(conf as any, (node: any) => {
+      files[node.id] = node.source
+      node.saved = true
+      delete node.source
+    })
+
+    // @ts-ignore
+    delete conf.saved
+
+    return {
+      ...conf,
+      files
+    }
+  }
+}
 
 const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
     id: sysHostsId,
-    label: 'Hosts',
-    source: hosts,
+    label: 'System Hosts',
+    saved: true,
     readonly: true
   }
+
+  const latestVersion = Object.keys(migrateStrategy).pop()!
 
   return {
     env: {
       platform
     },
-    version: '1.0.0',
+    version: latestVersion,
     saved: true,
     selected: sysHostsId,
-    hosts: [node]
+    hosts: [node],
+    files: {
+      [sysHostsId]: hosts
+    }
   }
 }
 
@@ -30,43 +58,47 @@ export async function saveConfig(conf: Config) {
 
   await fs.writeFile(confPath, JSON.stringify(conf, null, 2))
 
-  log('Save config: \n%o', conf)
+  log('Save config: \n%O', conf)
 }
 
 export async function resetConfig() {
   const defaultConf = defaultConfig(getHosts())
 
-  const node = getConfigNode(defaultConf, sysHostsId)!
+  const node = getConfigItem(defaultConf, sysHostsId)!
 
-  defaultConf.hosts.push({
+  const newNode = {
     ...node,
     id: uuid(),
     checked: true,
     readonly: false
-  })
+  }
+
+  defaultConf.files[newNode.id] = defaultConf.files[sysHostsId]
+
+  defaultConf.hosts.push(newNode)
 
   await saveConfig(defaultConf)
 
   return defaultConf
 }
 
-const migrateStrategy: Record<string, (conf: Config) => Config> = {
-  '1.0.0'(conf: Config) {
-    return conf
-  }
-}
+export function migrateConfig(conf: any): Config {
+  const newConf = Object.keys(migrateStrategy).reduce((config, version) => {
+    log(config.version, version, config.version < version)
 
-function migrateConfig(conf: Config): Config {
-  Object.keys(migrateStrategy).reduce((config, version) => {
     if (config.version < version) {
-      config = migrateStrategy[version](config)
+      const newConfig = migrateStrategy[version](cloneDeep(config))
+      newConfig.version = version
+
+      log('Migrate config from %O to %O', config, newConfig)
+
+      config = newConfig
     }
 
     return config
   }, conf)
-  saveConfig(conf)
 
-  return conf
+  return newConf
 }
 
 export async function getConfig(): Promise<Config> {
@@ -75,7 +107,7 @@ export async function getConfig(): Promise<Config> {
   const defaultConf = defaultConfig(hosts)
 
   if (!(await fs.pathExists(confPath))) {
-    log('Config is not exist: \n%o', defaultConf)
+    log('Config is not exist: \n%O', defaultConf)
     return defaultConf
   }
 
@@ -91,14 +123,13 @@ export async function getConfig(): Promise<Config> {
 
     conf = migrateConfig(conf)
 
-    const node = getNode(conf, sysHostsId)
+    conf.files[sysHostsId] = hosts
+    saveConfig(conf)
 
-    node && (node.source = hosts)
-
-    log('Config: \n%o', conf)
+    log('Config: \n%O', conf)
     return conf
   } catch (error) {
-    log('Load config error: \n%o', error)
+    log('Load config error: %s', error)
 
     saveConfig(defaultConf)
 
