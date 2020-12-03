@@ -33,7 +33,7 @@ jobs:
         id: get_version
         run: echo ::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3)
 
-  build-win:
+  build:
     needs:
       - release
 
