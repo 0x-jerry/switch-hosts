@@ -10,7 +10,7 @@ async function changeSysHosts(hosts: string) {
   } else {
     return new Promise((resolve, reject) => {
       exec(
-        `echo '${globalStore.password}' | sudo -S mv ${tempHostsPath} ${sysHostsPath}`,
+        `echo '${globalStore.password}' | sudo -S cp ${tempHostsPath} ${sysHostsPath}`,
         (err, stdout, stderr) => {
           if (err) {
             reject(stderr)
