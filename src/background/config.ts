@@ -9,7 +9,7 @@ import cloneDeep from 'lodash/cloneDeep'
 const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
     id: sysHostsId,
-    label: 'Hosts',
+    label: 'System Hosts',
     saved: true,
     readonly: true
   }

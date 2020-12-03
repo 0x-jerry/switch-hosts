@@ -1,5 +1,6 @@
 import path from 'path'
 import os from 'os'
+import pkg from '../package.json'
 
 export const title = 'Switch Hosts'
 
@@ -30,3 +31,5 @@ export enum IPC_RENDER_EVENTS {
 }
 
 export const isDebug = process.env.NODE_ENV === 'development'
+
+export const version = pkg.version

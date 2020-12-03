@@ -1,6 +1,7 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions, Tray } from 'electron'
 import path from 'path'
 import { hasCheck, isNode } from '../common'
+import { version } from '../const'
 import { ConfigNode, ConfigGroup } from '../define'
 import { eventBus, EVENTS } from './eventBus'
 import { actions, globalStore } from './store'
@@ -17,14 +18,10 @@ app.whenReady().then(() => {
     const menus: (MenuItemConstructorOptions | MenuItem)[] = []
     menus.push(
       {
-        label: 'switch-hosts',
+        label: `Switch Hosts (v${version})`,
         click() {
           eventBus.emit(EVENTS.SHOW_WINDOW)
         }
-      },
-      {
-        label: 'v1.0.0',
-        enabled: false
       },
       {
         type: 'separator'
@@ -54,9 +51,12 @@ app.whenReady().then(() => {
       }
     }
 
-    const hostsMenus: (MenuItemConstructorOptions | MenuItem)[] = globalStore.conf.hosts.map(
-      (node) => {
+    const hostsMenus: (MenuItemConstructorOptions | MenuItem)[] = globalStore.conf.hosts
+      .map((node) => {
         if (isNode(node)) {
+          if (node.readonly) {
+            return null
+          }
           return nodeToMenuItem(node)
         } else {
           return {
@@ -65,8 +65,8 @@ app.whenReady().then(() => {
             submenu: node.children.map((n) => nodeToMenuItem(n, node))
           }
         }
-      }
-    )
+      })
+      .filter((n) => !!n) as any
 
     menus.push(...hostsMenus)
     menus.push(
@@ -74,7 +74,8 @@ app.whenReady().then(() => {
         type: 'separator'
       },
       {
-        label: 'quit',
+        label: 'Quit',
+        accelerator: 'Command+Q',
         click() {
           app.quit()
         }

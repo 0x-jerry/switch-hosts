@@ -7,7 +7,7 @@ import { sysHostsId } from '../common/config'
 import { actions, globalStore } from './store'
 import { eventBus, EVENTS } from './eventBus'
 
-const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
+export const ipcMainEvents: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
   async [IPC_EVENTS.SAVE_CONFIG](_, conf: Config) {
     globalStore.conf = conf
     eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
@@ -24,6 +24,8 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
     const conf = await resetConfig()
 
     globalStore.conf = conf
+
+    eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
 
     return conf
   },
@@ -58,4 +60,4 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
   }
 }
 
-Object.keys(events).forEach((key) => ipcMain.handle(key, events[key]))
+Object.keys(ipcMainEvents).forEach((key) => ipcMain.handle(key, ipcMainEvents[key]))
