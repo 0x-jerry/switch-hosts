@@ -12,7 +12,8 @@
     "electron:generate-icons": "electron-icon-builder --input=./public/logo.png --output=build --flatten",
     "electron:serve": "vue-cli-service electron:serve",
     "postinstall": "electron-builder install-app-deps",
-    "postuninstall": "electron-builder install-app-deps"
+    "postuninstall": "electron-builder install-app-deps",
+    "release": "node scripts/release.js"
   },
   "main": "background.js",
   "dependencies": {
@@ -44,19 +45,23 @@
     "@vue/eslint-config-standard": "^5.1.2",
     "@vue/eslint-config-typescript": "^7.0.0",
     "@vue/test-utils": "^2.0.0-0",
+    "chalk": "^4.1.0",
     "conventional-changelog-cli": "^2.1.1",
     "electron": "^11.0.3",
     "electron-devtools-installer": "^3.1.0",
     "electron-icon-builder": "^1.0.2",
+    "enquirer": "^2.3.6",
     "eslint": "^7.14.0",
     "eslint-plugin-import": "^2.20.2",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^4.2.1",
     "eslint-plugin-standard": "^5.0.0",
     "eslint-plugin-vue": "^7.0.0-0",
+    "execa": "^5.0.0",
     "less": "^3.0.4",
     "less-loader": "^7.1.0",
     "monaco-editor-webpack-plugin": "^2.0.0",
+    "semver": "^7.3.4",
     "typescript": "~4.1.2",
     "vue-cli-plugin-electron-builder": "^2.0.0-rc.5",
     "vue-jest": "^5.0.0-0"
@@ -96,6 +101,9 @@
       }
     ]
   },
+  "eslintIgnore": [
+    "scripts"
+  ],
   "browserslist": [
     "> 1%",
     "last 2 versions",
