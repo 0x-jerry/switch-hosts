@@ -60,9 +60,8 @@ function useEditor() {
         return
       }
 
-      selectedNode.source = ed.getValue()
-
-      store.saved = true
+      store.files[selectedNode.id] = ed.getValue()
+      selectedNode.saved = true
 
       if (selectedNode.checked) {
         await actions.saveHosts()
@@ -76,8 +75,8 @@ function useEditor() {
     const selectedNode = actions.getSelectedNode()
 
     if (selectedNode) {
-      const changed = selectedNode.source !== ed.getValue()
-      store.saved = store.saved && !changed
+      const changed = store.files[selectedNode.id] !== ed.getValue()
+      selectedNode.saved = selectedNode.saved && !changed
     }
   })
 
@@ -98,14 +97,14 @@ export const Editor = defineComponent({
     function updateSource() {
       const selectedNode = actions.getSelectedNode()
 
-      store.saved = true
-
       if (!selectedNode) {
         return
       }
 
-      if (selectedNode.source !== editor.getValue()) {
-        editor.setValue(selectedNode.source)
+      selectedNode.saved = true
+
+      if (store.files[selectedNode.id] !== editor.getValue()) {
+        editor.setValue(store.files[selectedNode.id] || '')
       }
 
       editor.updateOptions({

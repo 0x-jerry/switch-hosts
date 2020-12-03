@@ -3,7 +3,7 @@ import { getConfig, resetConfig, saveConfig } from './config'
 import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
 import { switchHosts } from './hosts'
-import { getNode, sysHostsId } from '../common/config'
+import { sysHostsId } from '../common/config'
 import { actions, globalStore } from './store'
 import { eventBus, EVENTS } from './eventBus'
 
@@ -28,16 +28,16 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
     return conf
   },
   async [IPC_EVENTS.SAVE_HOSTS](_, conf: Config): Promise<boolean> {
-    const oldHostNode = getNode(globalStore.conf, sysHostsId)!
+    const oldHostSource = conf.files[sysHostsId]
 
     globalStore.conf = conf
     eventBus.emit(EVENTS.UPDATE_TRAY_MENU)
 
     await saveConfig(conf)
 
-    const node = getNode(conf, sysHostsId)!
+    const newHostSource = conf.files[sysHostsId]
 
-    if (node.source.trim() === oldHostNode.source.trim()) {
+    if (newHostSource.trim() === oldHostSource.trim()) {
       actions.notification({
         type: 'success',
         title: 'Switch hosts successful!'
@@ -45,10 +45,10 @@ const events: Record<string, (e: IpcMainInvokeEvent, ...args: any) => any> = {
       return true
     }
 
-    const result = await switchHosts(node.source)
+    const result = await switchHosts(newHostSource)
 
     if (!result) {
-      node.source = oldHostNode.source
+      conf.files[sysHostsId] = oldHostSource
     }
 
     return result

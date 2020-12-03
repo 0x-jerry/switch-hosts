@@ -1,9 +1,8 @@
 import { defineComponent, reactive, watchEffect } from 'vue'
-import { getConfigNode, getSchema, hasCheck, isNode, isSchema, sysHostsId } from '../common/config'
+import { getConfigNode, getSchema, hasCheck, isNode, isSchema } from '../common/config'
 import { ConfigHostItem, ConfigSchema } from '../define'
 import { actions, store } from '../store'
-
-const clone = (obj: any) => JSON.parse(JSON.stringify(obj))
+import cloneDeep from 'lodash/cloneDeep'
 
 export const ConfigList = defineComponent({
   setup() {
@@ -21,7 +20,7 @@ export const ConfigList = defineComponent({
     })
 
     return () => {
-      const treeData = clone(store.hosts)
+      const treeData = cloneDeep(store.hosts)
 
       const slots = {
         default({ node, data }: any) {
@@ -68,7 +67,7 @@ export const ConfigList = defineComponent({
                 href='#'
                 onClick={() => {
                   if (isNode(nodeData)) {
-                    actions.addConfigNode(nodeData.label, false, nodeData.source)
+                    actions.addConfigNode(nodeData.label, false, store.files[nodeData.id])
                   }
                 }}
               />

@@ -29,7 +29,7 @@ export function useNewHostDialog() {
     resetForm()
   }
 
-  const NewHostDialog = defineComponent((_, ctx) => {
+  const NewHostDialog = defineComponent(() => {
     return () => {
       return (
         <el-dialog

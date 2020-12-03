@@ -1,12 +1,6 @@
 import { ipcRenderer } from 'electron'
 import { reactive, toRaw } from 'vue'
-import {
-  deleteConfigNode,
-  getNode,
-  getSelectedNode,
-  sysHostsId,
-  visitConfigNode
-} from './common/config'
+import { deleteConfigNode, getSelectedNode, sysHostsId, visitConfigNode } from './common/config'
 import { Config, NotificationOption } from './define'
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { ElNotification } from 'element-plus'
@@ -22,18 +16,16 @@ const saveHosts = debounce(
   async () => {
     const hosts: string[] = []
 
-    visitConfigNode(store, (node) => node.checked && hosts.push(node.source))
+    visitConfigNode(store, (node) => node.checked && hosts.push(store.files[node.id]))
 
-    const conf = getNode(store, sysHostsId)!
+    const oldSource = store.files[sysHostsId]
 
-    const oldSource = conf.source
-
-    conf.source = hosts.join('\n')
+    store.files[sysHostsId] = hosts.join('\n')
 
     const successful = await ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
 
     if (!successful) {
-      conf.source = oldSource
+      store.files[sysHostsId] = oldSource
     }
   },
   500,
@@ -66,12 +58,17 @@ export const actions = {
         children: []
       })
     } else {
-      store.hosts.push({
+      const node = {
         label,
         id: uuid(),
         checked: false,
-        source: source || ''
-      })
+        readonly: false,
+        saved: true
+      }
+
+      store.hosts.push(node)
+
+      store.files[node.id] = source || ''
     }
 
     return actions.saveConfig()

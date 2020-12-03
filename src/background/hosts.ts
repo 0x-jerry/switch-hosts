@@ -23,6 +23,9 @@ async function changeSysHosts(hosts: string) {
   }
 }
 
+/**
+ * @returns 是否切换成功
+ */
 export async function switchHosts(hosts: string): Promise<boolean> {
   await fs.writeFile(tempHostsPath, hosts)
 

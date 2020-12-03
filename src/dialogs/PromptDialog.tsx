@@ -20,7 +20,7 @@ export function usePasswordDialog() {
     close()
   }
 
-  const PasswordDialog = defineComponent((_, ctx) => {
+  const PasswordDialog = defineComponent(() => {
     return () => {
       return (
         <el-dialog title='Input Password' v-model={data.visible} width='50%' append-to-body={true}>

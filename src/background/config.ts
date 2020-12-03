@@ -1,16 +1,16 @@
-import { log } from 'debug'
 import fs from 'fs-extra'
-import { Config, ConfigNode } from '../define'
+import { Config, ConfigNode, ConfigV100, ConfigV101 } from '../define'
 import { confDir, confPath, platform } from '../const'
-import { getConfigNode, getNode, sysHostsId } from '../common'
-import { getHosts } from './utils'
+import { getConfigNode, sysHostsId, visitConfigNode } from '../common'
+import { getHosts, log } from './utils'
 import { uuid } from '../utils'
+import cloneDeep from 'lodash/cloneDeep'
 
 const defaultConfig: (hosts: string) => Config = (hosts) => {
   const node: ConfigNode = {
     id: sysHostsId,
     label: 'Hosts',
-    source: hosts,
+    saved: true,
     readonly: true
   }
 
@@ -21,7 +21,10 @@ const defaultConfig: (hosts: string) => Config = (hosts) => {
     version: '1.0.0',
     saved: true,
     selected: sysHostsId,
-    hosts: [node]
+    hosts: [node],
+    files: {
+      [sysHostsId]: hosts
+    }
   }
 }
 
@@ -38,28 +41,54 @@ export async function resetConfig() {
 
   const node = getConfigNode(defaultConf, sysHostsId)!
 
-  defaultConf.hosts.push({
+  const newNode = {
     ...node,
     id: uuid(),
     checked: true,
     readonly: false
-  })
+  }
+
+  defaultConf.files[newNode.id] = defaultConf.files[sysHostsId]
+
+  defaultConf.hosts.push(newNode)
 
   await saveConfig(defaultConf)
 
   return defaultConf
 }
 
-const migrateStrategy: Record<string, (conf: Config) => Config> = {
-  '1.0.0'(conf: Config) {
+const migrateStrategy: Record<string, (conf: any) => any> = {
+  '1.0.0'(conf: ConfigV100): ConfigV100 {
     return conf
+  },
+  '1.1.0'(conf: ConfigV100): ConfigV101 {
+    const files: Record<string, string> = {}
+
+    visitConfigNode(conf as any, (node: any) => {
+      files[node.id] = node.source
+      node.saved = true
+      delete node.source
+    })
+
+    // @ts-ignore
+    delete conf.saved
+
+    return {
+      ...conf,
+      files
+    }
   }
 }
 
 function migrateConfig(conf: Config): Config {
   Object.keys(migrateStrategy).reduce((config, version) => {
     if (config.version < version) {
-      config = migrateStrategy[version](config)
+      const newConfig = migrateStrategy[version](cloneDeep(config))
+      newConfig.version = version
+
+      log('Migrate config from %O to %O', config, newConfig)
+
+      config = newConfig
     }
 
     return config
@@ -91,9 +120,7 @@ export async function getConfig(): Promise<Config> {
 
     conf = migrateConfig(conf)
 
-    const node = getNode(conf, sysHostsId)
-
-    node && (node.source = hosts)
+    conf.files[sysHostsId] = hosts
 
     log('Config: \n%o', conf)
     return conf
