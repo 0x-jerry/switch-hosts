@@ -80,8 +80,10 @@ const migrateStrategy: Record<string, (conf: any) => any> = {
   }
 }
 
-function migrateConfig(conf: Config): Config {
-  Object.keys(migrateStrategy).reduce((config, version) => {
+export function migrateConfig(conf: any): Config {
+  const newConf = Object.keys(migrateStrategy).reduce((config, version) => {
+    log(config.version, version, config.version < version)
+
     if (config.version < version) {
       const newConfig = migrateStrategy[version](cloneDeep(config))
       newConfig.version = version
@@ -93,9 +95,8 @@ function migrateConfig(conf: Config): Config {
 
     return config
   }, conf)
-  saveConfig(conf)
 
-  return conf
+  return newConf
 }
 
 export async function getConfig(): Promise<Config> {
@@ -121,6 +122,7 @@ export async function getConfig(): Promise<Config> {
     conf = migrateConfig(conf)
 
     conf.files[sysHostsId] = hosts
+    saveConfig(conf)
 
     log('Config: \n%O', conf)
     return conf
