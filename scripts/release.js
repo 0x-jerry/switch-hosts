@@ -44,8 +44,8 @@ async function main() {
   updatePackage(targetVersion)
 
   // Build the package.
-  step('\nBuilding the package...')
-  await run('yarn', ['build'])
+  step('\nTesting ...')
+  await run('yarn', ['test'])
 
   step('\nGenerate release note...')
   await generateReleaseNote()
@@ -66,7 +66,9 @@ async function generateReleaseNote() {
   const mdContent = ['<!-- Auto generate by `./scripts/release.js` -->']
 
   const changelogPath = path.join(__dirname, '../CHANGELOG.md')
-  const oldContent = fs.existsSync(changelogPath) ? fs.readFileSync(changelogPath, { encoding: 'utf-8' }) : ''
+  const oldContent = fs.existsSync(changelogPath)
+    ? fs.readFileSync(changelogPath, { encoding: 'utf-8' })
+    : ''
 
   // Generate the changelog.
   step('\nGenerating the changelog...')
