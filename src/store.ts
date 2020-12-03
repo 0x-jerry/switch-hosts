@@ -74,6 +74,10 @@ ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf: Config) => {
   }
 })
 
+ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_SOURCE, (_, id: string, source: string) => {
+  store.files[id] = source
+})
+
 ipcRenderer.on(IPC_RENDER_EVENTS.NOTIFICATION, (_, opt: NotificationOption) => {
   console.log(opt)
 

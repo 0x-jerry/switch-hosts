@@ -3,7 +3,7 @@ import { getConfig, resetConfig, saveConfig } from './config'
 import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
 import { switchHosts } from './hosts'
-import { sysHostsId, visitConfigNode } from '../common/config'
+import { getCombineSource, sysHostsId } from '../common/config'
 import { actions, globalStore } from './store'
 import { eventBus, EVENTS } from './eventBus'
 import { getHosts } from './utils'
@@ -31,9 +31,7 @@ export const ipcActions = {
     return conf
   },
   async [IPC_EVENTS.SAVE_HOSTS](conf: Config): Promise<boolean> {
-    const hosts: string[] = []
-    visitConfigNode(conf, (node) => node.checked && hosts.push(conf.files[node.id]))
-    conf.files[sysHostsId] = hosts.join('\n')
+    conf.files[sysHostsId] = getCombineSource(conf)
 
     await ipcActions[IPC_EVENTS.SAVE_CONFIG](conf)
 
@@ -53,6 +51,8 @@ export const ipcActions = {
     if (!result) {
       conf.files[sysHostsId] = oldHostSource
     }
+
+    actions.updateSource(sysHostsId, newHostSource)
 
     return result
   },

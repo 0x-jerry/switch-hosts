@@ -99,3 +99,10 @@ export function deleteConfigNode(conf: Config, id: string) {
     idx++
   }
 }
+
+export function getCombineSource(conf: Config) {
+  const hosts: string[] = []
+  visitConfigNode(conf, (node) => node.checked && hosts.push(conf.files[node.id]))
+
+  return hosts.join('\n')
+}

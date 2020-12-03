@@ -27,6 +27,7 @@ export enum IPC_EVENTS {
 
 export enum IPC_RENDER_EVENTS {
   UPDATE_CONFIG = 'update-config',
+  UPDATE_SOURCE = 'update-source',
   NOTIFICATION = 'notification'
 }
 

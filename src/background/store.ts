@@ -23,6 +23,9 @@ export const actions = {
   saveHosts(conf: Config) {
     ipcActions[IPC_EVENTS.SAVE_HOSTS](conf)
   },
+  updateSource(id: string, source: string) {
+    sendMsg(IPC_RENDER_EVENTS.UPDATE_SOURCE, id, source)
+  },
   updateConfig() {
     sendMsg(IPC_RENDER_EVENTS.UPDATE_CONFIG, globalStore.conf)
     actions.saveHosts(globalStore.conf)
