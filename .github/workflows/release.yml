@@ -41,11 +41,11 @@ jobs:
       matrix:
         include:
           - os: ubuntu-latest
-            name: switch-hosts-v${{ needs.prepare.outputs.release_tag }}.AppImage
+            name: switch-hosts-v${{ needs.release.outputs.release_tag }}.AppImage
           - os: macos-latest
-            name: switch-hosts-v${{ needs.prepare.outputs.release_tag }}.dmg
+            name: switch-hosts-v${{ needs.release.outputs.release_tag }}.dmg
           - os: windows-latest
-            name: switch-hosts-v${{ needs.prepare.outputs.release_tag }}.exe
+            name: switch-hosts-v${{ needs.release.outputs.release_tag }}.exe
 
     runs-on: ${{ matrix.os }}
 
