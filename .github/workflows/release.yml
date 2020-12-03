@@ -34,12 +34,21 @@ jobs:
 
     strategy:
       matrix:
-        os: [ubuntu-latest, windows-latest, macos-latest]
+        include:
+          - os: ubuntu-latest
+            name: switch-hosts-v${{ ${GITHUB_REF##*/} }}.AppImage
+          - os: macos-latest
+            name: switch-hosts-v${{ ${GITHUB_REF##*/} }}.dmg
+          - os: windows-latest
+            name: switch-hosts-v${{ ${GITHUB_REF##*/} }}.exe
 
     runs-on: ${{ matrix.os }}
 
     steps:
       - uses: actions/checkout@v2
+
+      - name: test
+        run: echo "${{ matrix.name }}"
 
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
@@ -67,9 +76,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.release.outputs.upload_url }}
-          asset_path: |
-            ${{ github.workspace }}/dist_electron/switch-hosts*.dmg
-            ${{ github.workspace }}/dist_electron/switch-hosts*.exe
-            ${{ github.workspace }}/dist_electron/switch-hosts*.AppImage
-          # asset_name: my-artifact.zip
-          # asset_content_type: application/zip
+          asset_path: ${{ github.workspace }}/dist_electron/${{ matrix.name }}
