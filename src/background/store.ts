@@ -30,6 +30,9 @@ export const actions = {
     sendMsg(IPC_RENDER_EVENTS.UPDATE_CONFIG, globalStore.conf)
     actions.saveHosts(globalStore.conf)
   },
+  showPasswordDialog() {
+    sendMsg(IPC_RENDER_EVENTS.NEED_PASSWORD)
+  },
   notification(opt: Partial<NotificationOption>) {
     const option: NotificationOption = {
       type: 'info',

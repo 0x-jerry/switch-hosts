@@ -40,6 +40,19 @@ export async function switchHosts(hosts: string): Promise<boolean> {
     return true
   } catch (error) {
     log('Switch host error: \n%s', error)
+
+    const reasons = ['Permission denied', 'incorrect password', 'Password:Sorry, try again.']
+
+    const needPassword = !!reasons.find((reason) =>
+      String(error)
+        .toLocaleLowerCase()
+        .includes(reason.toLowerCase())
+    )
+
+    if (needPassword) {
+      actions.showPasswordDialog()
+    }
+
     actions.notification({
       type: 'error',
       title: 'Switch hosts failed!',

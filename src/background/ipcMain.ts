@@ -58,6 +58,7 @@ export const ipcActions = {
   },
   [IPC_EVENTS.SET_PASSWORD](password: string) {
     globalStore.password = password
+    actions.saveHosts(globalStore.conf)
   }
 }
 

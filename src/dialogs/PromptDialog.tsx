@@ -17,6 +17,7 @@ export function usePasswordDialog() {
   const confirm = async (e: Event) => {
     e.preventDefault()
     await actions.setPassword(form.password)
+    form.password = ''
     close()
   }
 
