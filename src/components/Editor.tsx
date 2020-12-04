@@ -2,6 +2,7 @@ import { defineComponent, onMounted, reactive, watch } from 'vue'
 import { editor, IRange } from 'monaco-editor'
 import './lang-hosts'
 import { actions, confStore } from '../store'
+import { getNode } from '../common'
 
 function isClickLineNumber(e: editor.IEditorMouseEvent) {
   return e.target.element?.classList.contains('line-numbers')
@@ -113,12 +114,15 @@ export const Editor = defineComponent({
 
     const { el, editor } = useEditor()
 
-    function updateSource() {
+    function updateSource(oldSelectedId?: string) {
       const selectedNode = actions.getSelectedNode()
 
-      if (!selectedNode) {
+      if (!selectedNode || !oldSelectedId) {
         return
       }
+
+      const oldSelectedNode = getNode(confStore, oldSelectedId)
+      oldSelectedNode && (oldSelectedNode.saved = true)
 
       selectedNode.saved = true
 
@@ -139,8 +143,8 @@ export const Editor = defineComponent({
 
     watch(
       () => confStore.selected,
-      () => {
-        updateSource()
+      (_, oldId) => {
+        updateSource(oldId)
       }
     )
 
