@@ -9,8 +9,6 @@ export function isNode(c: ConfigGroup | ConfigNode): c is ConfigNode {
   return !isGroup(c)
 }
 
-export const hasCheck = (node: ConfigHostItem) => typeof node.checked === 'boolean'
-
 /**
  *
  * @param visit 返回 true，跳出循环

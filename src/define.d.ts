@@ -1,10 +1,10 @@
 export interface ConfigItem {
   id: string
   label: string
-  checked?: boolean
 }
 
 export interface ConfigNode extends ConfigItem {
+  checked: boolean
   saved: boolean
   readonly: boolean
 }

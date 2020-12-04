@@ -1,6 +1,6 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions, Tray } from 'electron'
 import path from 'path'
-import { hasCheck, isNode } from '../common'
+import { isNode } from '../common'
 import { version } from '../const'
 import { ConfigNode, ConfigGroup } from '../define'
 import { eventBus, EVENTS } from './eventBus'
@@ -34,12 +34,12 @@ app.whenReady().then(() => {
       return {
         label: node.label,
         type: isSingle ? 'radio' : 'checkbox',
-        enabled: !node.readonly && hasCheck(node),
+        enabled: !node.readonly,
         checked: node.checked,
         click() {
           if (isSingle && parent) {
             parent.children.forEach((n) => {
-              hasCheck(n) && (n.checked = false)
+              !node.readonly && (n.checked = false)
             })
 
             node.checked = true

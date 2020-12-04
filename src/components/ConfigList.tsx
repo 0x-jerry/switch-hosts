@@ -1,5 +1,5 @@
 import { defineComponent, reactive, watchEffect } from 'vue'
-import { getConfigItem, getGroup, hasCheck, isNode, isGroup } from '../common/config'
+import { getConfigItem, getGroup, isNode, isGroup } from '../common/config'
 import { ConfigHostItem, ConfigGroup, ConfigNode } from '../define'
 import { actions, store } from '../store'
 import cloneDeep from 'lodash/cloneDeep'
@@ -46,7 +46,7 @@ function ConfigCheckbox(nodeData: ConfigNode, node: any) {
           const parentData = getGroup(store, parentNode.id)!
 
           parentData.children.forEach((n) => {
-            if (hasCheck(n) && n.id !== nodeData.id) {
+            if (n.id !== nodeData.id && n.checked) {
               n.checked = false
             }
           })
@@ -73,7 +73,7 @@ function ConfigSingleModeIcon(nodeData: ConfigGroup) {
         if (nodeData.mode === 'single') {
           let checked = false
           nodeData.children.forEach((n) => {
-            if (!hasCheck(n) || !n.checked) {
+            if (n.readonly || !n.checked) {
               return
             }
 
