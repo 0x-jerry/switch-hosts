@@ -1,11 +1,17 @@
 @import url('./editor.less');
 
+@color-primary: #409eff;
+
 html,
 body {
   padding: 0;
   margin: 0;
   overflow: hidden;
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+input {
+  outline-color: @color-primary;
 }
 
 #app {
@@ -38,7 +44,6 @@ body {
 
     .item-label {
       display: inline-block;
-      // width: 100px;
       overflow: hidden;
       text-overflow: ellipsis;
     }
@@ -113,7 +118,7 @@ body {
   @size: 4px;
   width: @size;
   height: @size;
-  border: 5px solid #409eff;
+  border: 5px solid @color-primary;
   border-radius: 100px;
 
   &.grey {
