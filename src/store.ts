@@ -12,28 +12,30 @@ import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { ElNotification } from 'element-plus'
 import { uuid } from './utils'
 
-export const store = reactive<Config>(window.__preload__.store)
+export const confStore = reactive<Config>(window.__preload__.store)
 
 // @ts-ignore
-window.__store = store
+window.__store = {
+  confStore
+}
 
 export const actions = {
   getSelectedNode() {
-    const node = getSelectedNode(store)
+    const node = getSelectedNode(confStore)
 
     if (!node) {
-      store.selected = sysHostsId
-      return getSelectedNode(store)
+      confStore.selected = sysHostsId
+      return getSelectedNode(confStore)
     }
 
     return node
   },
   removeConfigNode(id: string) {
-    return deleteConfigNode(store, id)
+    return deleteConfigNode(confStore, id)
   },
   addConfigNode(label: string, isGroup: boolean, source?: string) {
     if (isGroup) {
-      store.hosts.push({
+      confStore.hosts.push({
         label,
         id: uuid(),
         mode: 'single',
@@ -48,9 +50,9 @@ export const actions = {
         saved: true
       }
 
-      store.hosts.push(node)
+      confStore.hosts.push(node)
 
-      store.files[node.id] = source || ''
+      confStore.files[node.id] = source || ''
     }
 
     return actions.saveConfig()
@@ -63,13 +65,13 @@ export const actions = {
         checked: false
       }
 
-      store.files[newNode.id] = store.files[node.id]
+      confStore.files[newNode.id] = confStore.files[node.id]
 
-      const parent = getParentGroup(store, node)
+      const parent = getParentGroup(confStore, node)
       if (parent) {
         parent.children.push(newNode)
       } else {
-        store.hosts.push(newNode)
+        confStore.hosts.push(newNode)
       }
     } else {
       const newGroup: ConfigGroup = {
@@ -78,24 +80,24 @@ export const actions = {
         children: []
       }
 
-      store.hosts.push(newGroup)
+      confStore.hosts.push(newGroup)
       newGroup.children.forEach((n) => {
         this.copyConfigNode(n)
       })
     }
   },
   saveConfig() {
-    return ipcRenderer.invoke(IPC_EVENTS.SAVE_CONFIG, toRaw(store))
+    return ipcRenderer.invoke(IPC_EVENTS.SAVE_CONFIG, toRaw(confStore))
   },
   async resetConfig() {
     const conf = await ipcRenderer.invoke(IPC_EVENTS.RESET_CONFIG)
     for (const key in conf) {
       // @ts-ignore
-      store[key] = conf[key]
+      confStore[key] = conf[key]
     }
   },
   saveHosts() {
-    return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(store))
+    return ipcRenderer.invoke(IPC_EVENTS.SAVE_HOSTS, toRaw(confStore))
   },
   setPassword(password: string) {
     return ipcRenderer.invoke(IPC_EVENTS.SET_PASSWORD, password)
@@ -105,12 +107,12 @@ export const actions = {
 ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_CONFIG, (_, conf: Config) => {
   for (const key in conf) {
     // @ts-ignore
-    store[key] = conf[key]
+    confStore[key] = conf[key]
   }
 })
 
 ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_SOURCE, (_, id: string, source: string) => {
-  store.files[id] = source
+  confStore.files[id] = source
 })
 
 ipcRenderer.on(IPC_RENDER_EVENTS.NOTIFICATION, (_, opt: NotificationOption) => {

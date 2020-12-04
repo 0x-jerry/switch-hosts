@@ -1,7 +1,7 @@
 import { defineComponent, onMounted, reactive, watch } from 'vue'
 import { editor, IRange } from 'monaco-editor'
 import './lang-hosts'
-import { actions, store } from '../store'
+import { actions, confStore } from '../store'
 
 function isClickLineNumber(e: editor.IEditorMouseEvent) {
   return e.target.element?.classList.contains('line-numbers')
@@ -31,6 +31,23 @@ function toggleLineComment(range: IRange, editor: editor.IStandaloneCodeEditor) 
   editor.executeEdits(code, [editAction])
 }
 
+function initSearchAction(ed: editor.IStandaloneCodeEditor) {
+  // https://github.com/Microsoft/monaco-editor/issues/808#issuecomment-380151046
+  const findCtr = ed.getContribution('editor.contrib.findController') as any
+
+  findCtr._register(
+    findCtr._state.onFindReplaceStateChange((e: any) => {
+      // https://github.com/microsoft/vscode/blob/f2edfdc20b43602df8bbb155c988f50c0cd5ba5a/src/vs/editor/contrib/find/findController.ts#L67
+      const visible = findCtr._findWidgetVisible.get()
+      const searchString = findCtr._state._searchString
+
+      if (visible) {
+        console.log(searchString)
+      }
+    })
+  )
+}
+
 function useEditor() {
   const el = document.createElement('div')
   el.classList.add('full')
@@ -41,6 +58,8 @@ function useEditor() {
     automaticLayout: true,
     selectOnLineNumbers: false
   })
+
+  initSearchAction(ed)
 
   // @ts-ignore
   window.__editor = ed
@@ -60,7 +79,7 @@ function useEditor() {
         return
       }
 
-      store.files[selectedNode.id] = ed.getValue()
+      confStore.files[selectedNode.id] = ed.getValue()
       selectedNode.saved = true
 
       if (selectedNode.checked) {
@@ -75,7 +94,7 @@ function useEditor() {
     const selectedNode = actions.getSelectedNode()
 
     if (selectedNode) {
-      const changed = store.files[selectedNode.id] !== ed.getValue()
+      const changed = confStore.files[selectedNode.id] !== ed.getValue()
       selectedNode.saved = selectedNode.saved && !changed
     }
   })
@@ -103,8 +122,8 @@ export const Editor = defineComponent({
 
       selectedNode.saved = true
 
-      if (store.files[selectedNode.id] !== editor.getValue()) {
-        editor.setValue(store.files[selectedNode.id] || '')
+      if (confStore.files[selectedNode.id] !== editor.getValue()) {
+        editor.setValue(confStore.files[selectedNode.id] || '')
       }
 
       editor.updateOptions({
@@ -119,7 +138,7 @@ export const Editor = defineComponent({
     onMounted(() => data.el.append(el))
 
     watch(
-      () => store.selected,
+      () => confStore.selected,
       () => {
         updateSource()
       }

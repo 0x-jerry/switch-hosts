@@ -3,7 +3,7 @@ import { App } from './App'
 import ElementUI from 'element-plus'
 import './less/app.less'
 import 'element-plus/lib/theme-chalk/index.css'
-import { actions, store } from './store'
+import { actions, confStore } from './store'
 import { title } from './const'
 import { sysHostsId, visitConfigNode } from './common'
 
@@ -26,9 +26,9 @@ createApp(App)
 
 function detectApplied() {
   const hosts: string[] = []
-  visitConfigNode(store, (node) => node.checked && hosts.push(store.files[node.id]))
+  visitConfigNode(confStore, (node) => node.checked && hosts.push(confStore.files[node.id]))
 
-  const isApplied = hosts.join('\n').trim() === store.files[sysHostsId].trim() ? '' : '! '
+  const isApplied = hosts.join('\n').trim() === confStore.files[sysHostsId].trim() ? '' : '! '
 
   return isApplied
 }

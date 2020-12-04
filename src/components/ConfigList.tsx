@@ -1,7 +1,7 @@
 import { defineComponent, reactive, watchEffect, watch, nextTick } from 'vue'
 import { getConfigItem, getGroup, isNode, isGroup } from '../common/config'
 import { ConfigHostItem, ConfigGroup, ConfigNode } from '../define'
-import { actions, store } from '../store'
+import { actions, confStore } from '../store'
 import cloneDeep from 'lodash/cloneDeep'
 
 function ConfigCheckbox(nodeData: ConfigNode, node: any) {
@@ -15,7 +15,7 @@ function ConfigCheckbox(nodeData: ConfigNode, node: any) {
         const isRadio = isChildNode && parentNode.mode === 'single'
 
         if (isRadio) {
-          const parentData = getGroup(store, parentNode.id)!
+          const parentData = getGroup(confStore, parentNode.id)!
 
           parentData.children.forEach((n) => {
             if (n.id !== nodeData.id && n.checked) {
@@ -106,7 +106,7 @@ function ConfigDeleteIcon(nodeData: ConfigHostItem) {
 
 export const ConfigList = defineComponent({
   setup() {
-    const defaultSelected = store.selected
+    const defaultSelected = confStore.selected
 
     const thisData = reactive({
       expanded: [defaultSelected],
@@ -119,7 +119,7 @@ export const ConfigList = defineComponent({
     })
 
     watchEffect(() => {
-      const key = store.selected
+      const key = confStore.selected
 
       thisData.tree && thisData.tree.setCurrentKey(key)
     })
@@ -134,11 +134,11 @@ export const ConfigList = defineComponent({
     )
 
     return () => {
-      const treeData = cloneDeep(store.hosts)
+      const treeData = cloneDeep(confStore.hosts)
 
       const slots = {
         default({ node, data }: any) {
-          const nodeData = getConfigItem(store, data.id)!
+          const nodeData = getConfigItem(confStore, data.id)!
 
           if (!nodeData) {
             return
@@ -241,11 +241,11 @@ export const ConfigList = defineComponent({
           current-node-key={defaultSelected}
           onNodeClick={(node: ConfigHostItem) => {
             if (isNode(node)) {
-              store.selected = node.id
+              confStore.selected = node.id
             }
           }}
           onNodeDrop={() => {
-            store.hosts = treeData
+            confStore.hosts = treeData
             actions.saveConfig()
           }}
           onNodeCollapse={(item: ConfigHostItem) => {
