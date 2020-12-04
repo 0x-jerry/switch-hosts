@@ -34,7 +34,8 @@ const defaultConfig: (hosts: string) => Config = (hosts) => {
     id: sysHostsId,
     label: 'System Hosts',
     saved: true,
-    readonly: true
+    readonly: true,
+    checked: false
   }
 
   const latestVersion = Object.keys(migrateStrategy).pop()!

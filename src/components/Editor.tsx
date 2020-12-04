@@ -37,7 +37,7 @@ function initSearchAction(ed: editor.IStandaloneCodeEditor) {
   const findCtr = ed.getContribution('editor.contrib.findController') as any
 
   findCtr._register(
-    findCtr._state.onFindReplaceStateChange((e: any) => {
+    findCtr._state.onFindReplaceStateChange(() => {
       // https://github.com/microsoft/vscode/blob/f2edfdc20b43602df8bbb155c988f50c0cd5ba5a/src/vs/editor/contrib/find/findController.ts#L67
       const visible = findCtr._findWidgetVisible.get()
       const searchString = findCtr._state._searchString
