@@ -52,9 +52,6 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: test
-        run: echo "${{ matrix.name }}"
-
       - name: Use Node.js 12.x
         uses: actions/setup-node@v1
         with:
@@ -69,10 +66,13 @@ jobs:
             **/node_modules
           key: ${{ runner.os }}-${{ hashFiles('**/yarn.lock') }}
 
-      - name: Build
+      - name: Test
         run: |
           yarn 
-          yarn electron:build
+          yarn test
+
+      - name: Build
+        run: yarn electron:build
 
       - name: Upload Release Asset
         id: upload-release-asset
