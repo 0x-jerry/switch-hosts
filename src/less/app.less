@@ -30,6 +30,19 @@ body {
       justify-self: center;
     }
   }
+
+  &-label {
+    display: grid;
+    grid-template-columns: 22px auto;
+    align-items: center;
+
+    .item-label {
+      display: inline-block;
+      // width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+  }
 }
 
 .border {
@@ -52,7 +65,7 @@ body {
 
 .app {
   display: grid;
-  grid-template-columns: 300px auto;
+  grid-template-columns: 260px auto;
 
   &-sidebar {
     display: grid;

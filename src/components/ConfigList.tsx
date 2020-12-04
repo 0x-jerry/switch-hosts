@@ -171,42 +171,18 @@ export const ConfigList = defineComponent({
             return
           }
 
-          const isReadOnly = isNode(nodeData) && nodeData.readonly
-
           const icons = []
 
-          if (!isReadOnly) {
-            const deleteIcon = ConfigDeleteIcon(nodeData)
+          const copyIcon = ConfigCopyIcon(nodeData)
+          const deleteIcon = ConfigDeleteIcon(nodeData)
 
-            icons.push(deleteIcon)
-          } else {
-            const copyIcon = ConfigCopyIcon(nodeData)
+          const readonlyIcon = (
+            <el-icon class='item-icon el-icon-lock' style='cursor: not-allowed;' />
+          )
 
-            icons.push(copyIcon)
-          }
-
-          if (isGroup(nodeData)) {
-            const singleModeIcon = ConfigSingleModeIcon(nodeData)
-
-            icons.push(singleModeIcon)
-          }
-
-          if (isReadOnly) {
-            const readonlyIcon = (
-              <el-icon class='item-icon el-icon-lock' style='cursor: not-allowed;' />
-            )
-
-            icons.push(readonlyIcon)
-          }
-
-          if (hasCheck(nodeData) && isNode(nodeData)) {
+          if (isNode(nodeData)) {
             const checkboxIcon = ConfigCheckbox(nodeData, node)
-
-            icons.push(checkboxIcon)
-          }
-
-          if (isNode(nodeData) && !nodeData.readonly) {
-            const moreIcon = (
+            const moreActionIcon = (
               <ConfigMoreIcon
                 // @ts-ignore
                 onRename={() => {
@@ -216,16 +192,23 @@ export const ConfigList = defineComponent({
               />
             )
 
-            icons.push(moreIcon)
+            if (nodeData.readonly) {
+              icons.push(copyIcon, readonlyIcon)
+            } else {
+              icons.push(deleteIcon, checkboxIcon, moreActionIcon)
+            }
+          } else {
+            const modeIcon = ConfigSingleModeIcon(nodeData)
+            icons.push(deleteIcon, modeIcon)
           }
 
-          const nodes = [...icons]
-
-          for (let idx = 0; idx < 4 - icons.length; idx++) {
-            nodes.unshift(<div class='noop' />)
+          const len = icons.length
+          const max = 4
+          for (let idx = 0; idx < max - len; idx++) {
+            icons.unshift(<div class='noop' />)
           }
 
-          const icon = isNode(nodeData) ? (
+          const labelIcon = isNode(nodeData) ? (
             <el-icon class={nodeData.readonly ? 'el-icon-monitor' : 'el-icon-document'} />
           ) : (
             <el-icon class={node.expanded ? 'el-icon-folder-opened' : 'el-icon-folder'} />
@@ -235,6 +218,7 @@ export const ConfigList = defineComponent({
             thisData.edit.id === nodeData.id ? (
               <input
                 ref={(e) => (thisData.edit.ref = e)}
+                class='item-label'
                 v-model={thisData.edit.content}
                 onBlur={() => {
                   nodeData.label = thisData.edit.content
@@ -247,7 +231,11 @@ export const ConfigList = defineComponent({
                 }}
               />
             ) : (
-              <span onDblclick={() => (thisData.edit.id = nodeData.id)}>
+              <span
+                class='item-label'
+                title={nodeData.label}
+                onDblclick={() => (thisData.edit.id = nodeData.id)}
+              >
                 {nodeData.label} {isNode(nodeData) && nodeData.saved ? '' : '*'}
               </span>
             )
@@ -255,10 +243,10 @@ export const ConfigList = defineComponent({
           return (
             <div class='config-item'>
               <span class='config-label'>
-                <span style={{ marginRight: '5px' }}>{icon}</span>
+                <span>{labelIcon}</span>
                 {labelComp}
               </span>
-              {...nodes}
+              {...icons}
             </div>
           )
         }
