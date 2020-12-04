@@ -25,6 +25,11 @@ input {
 }
 
 .config {
+  &-icon {
+    opacity: 0;
+    transition: all 0.2s ease;
+  }
+
   &-item {
     width: 100%;
     display: grid;
@@ -34,6 +39,12 @@ input {
 
     .item-icon {
       justify-self: center;
+    }
+
+    &:hover {
+      .config-icon {
+        opacity: 1;
+      }
     }
   }
 

@@ -71,7 +71,7 @@ function ConfigSingleModeIcon(nodeData: ConfigGroup) {
 function ConfigCopyIcon(nodeData: ConfigHostItem) {
   return (
     <el-link
-      icon='el-icon-document-copy'
+      icon='config-icon el-icon-document-copy'
       title='Copy'
       underline={false}
       href='#'
@@ -83,7 +83,7 @@ function ConfigCopyIcon(nodeData: ConfigHostItem) {
 function ConfigDeleteIcon(nodeData: ConfigHostItem) {
   return (
     <el-link
-      icon='el-icon-delete'
+      icon='config-icon el-icon-delete'
       underline={false}
       title='Delete'
       href='#'
@@ -163,7 +163,7 @@ export const ConfigList = defineComponent({
             }
           } else {
             const modeIcon = ConfigSingleModeIcon(nodeData)
-            icons.push(deleteIcon, modeIcon)
+            icons.push(deleteIcon, copyIcon, modeIcon)
           }
 
           const len = icons.length
