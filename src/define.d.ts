@@ -1,4 +1,4 @@
-export interface ConfigItem {
+interface ConfigItem {
   id: string
   label: string
 }

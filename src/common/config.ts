@@ -86,7 +86,7 @@ export function deleteConfigNode(conf: Config, id: string) {
       let subIdx = 0
       for (const node of file.children) {
         if (node.id === id) {
-          file.children.splice(subIdx)
+          file.children.splice(subIdx, 1)
           break
         }
 
@@ -103,4 +103,21 @@ export function getCombineSource(conf: Config) {
   visitConfigNode(conf, (node) => node.checked && hosts.push(conf.files[node.id]))
 
   return hosts.join('\n')
+}
+
+export function getParentGroup(conf: Config, node: ConfigNode): ConfigGroup | null {
+  let r: ConfigGroup | null = null
+
+  visitConfigItem(conf, (item) => {
+    if (!isGroup(item)) {
+      return
+    }
+
+    if (item.children.find((n) => n.id === node.id)) {
+      r = item
+      return true
+    }
+  })
+
+  return r
 }

@@ -1,7 +1,13 @@
 import { ipcRenderer } from 'electron'
 import { reactive, toRaw } from 'vue'
-import { deleteConfigNode, getSelectedNode, sysHostsId } from './common/config'
-import { Config, NotificationOption } from './define'
+import {
+  deleteConfigNode,
+  getParentGroup,
+  getSelectedNode,
+  isNode,
+  sysHostsId
+} from './common/config'
+import { Config, ConfigGroup, ConfigHostItem, ConfigNode, NotificationOption } from './define'
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { ElNotification } from 'element-plus'
 import { uuid } from './utils'
@@ -48,6 +54,35 @@ export const actions = {
     }
 
     return actions.saveConfig()
+  },
+  copyConfigNode(node: ConfigHostItem) {
+    if (isNode(node)) {
+      const newNode: ConfigNode = {
+        ...node,
+        id: uuid(),
+        checked: false
+      }
+
+      store.files[newNode.id] = store.files[node.id]
+
+      const parent = getParentGroup(store, node)
+      if (parent) {
+        parent.children.push(newNode)
+      } else {
+        store.hosts.push(newNode)
+      }
+    } else {
+      const newGroup: ConfigGroup = {
+        ...node,
+        id: uuid(),
+        children: []
+      }
+
+      store.hosts.push(newGroup)
+      newGroup.children.forEach((n) => {
+        this.copyConfigNode(n)
+      })
+    }
   },
   saveConfig() {
     return ipcRenderer.invoke(IPC_EVENTS.SAVE_CONFIG, toRaw(store))

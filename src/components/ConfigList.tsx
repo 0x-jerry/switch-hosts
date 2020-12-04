@@ -1,36 +1,8 @@
-import { defineComponent, reactive, watchEffect } from 'vue'
+import { defineComponent, reactive, watchEffect, watch, nextTick } from 'vue'
 import { getConfigItem, getGroup, isNode, isGroup } from '../common/config'
 import { ConfigHostItem, ConfigGroup, ConfigNode } from '../define'
 import { actions, store } from '../store'
 import cloneDeep from 'lodash/cloneDeep'
-
-const ConfigMoreIcon = defineComponent({
-  emits: ['rename'],
-  setup(props, ctx) {
-    return () => {
-      const slots = {
-        default() {
-          return <el-link icon='el-icon-more-outline' title='More' underline={false} href='#' />
-        },
-        dropdown() {
-          return (
-            <el-dropdown-menu>
-              <el-dropdown-item
-                icon='el-icon-edit'
-                onClick={() => {
-                  ctx.emit('rename')
-                }}
-              >
-                Rename
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          )
-        }
-      }
-      return <el-dropdown size='small' class='item-icon' v-slots={slots}></el-dropdown>
-    }
-  }
-})
 
 function ConfigCheckbox(nodeData: ConfigNode, node: any) {
   return (
@@ -103,11 +75,7 @@ function ConfigCopyIcon(nodeData: ConfigHostItem) {
       title='Copy'
       underline={false}
       href='#'
-      onClick={() => {
-        if (isNode(nodeData)) {
-          actions.addConfigNode(nodeData.label, false, store.files[nodeData.id])
-        }
-      }}
+      onClick={() => actions.copyConfigNode(nodeData)}
     />
   )
 }
@@ -156,9 +124,14 @@ export const ConfigList = defineComponent({
       thisData.tree && thisData.tree.setCurrentKey(key)
     })
 
-    watchEffect(() => {
-      thisData.edit.ref?.focus()
-    })
+    watch(
+      () => thisData.edit.id,
+      () => {
+        nextTick(() => {
+          thisData.edit.ref?.focus()
+        })
+      }
+    )
 
     return () => {
       const treeData = cloneDeep(store.hosts)
@@ -182,20 +155,11 @@ export const ConfigList = defineComponent({
 
           if (isNode(nodeData)) {
             const checkboxIcon = ConfigCheckbox(nodeData, node)
-            const moreActionIcon = (
-              <ConfigMoreIcon
-                // @ts-ignore
-                onRename={() => {
-                  thisData.edit.id = nodeData.id
-                  thisData.edit.content = nodeData.label
-                }}
-              />
-            )
 
             if (nodeData.readonly) {
               icons.push(copyIcon, readonlyIcon)
             } else {
-              icons.push(deleteIcon, checkboxIcon, moreActionIcon)
+              icons.push(deleteIcon, copyIcon, checkboxIcon)
             }
           } else {
             const modeIcon = ConfigSingleModeIcon(nodeData)
@@ -237,9 +201,16 @@ export const ConfigList = defineComponent({
               <span
                 class='item-label'
                 title={nodeData.label}
-                onDblclick={() => (thisData.edit.id = nodeData.id)}
+                onDblclick={() => {
+                  if (isNode(nodeData) && nodeData.readonly) {
+                    return
+                  }
+
+                  thisData.edit.id = nodeData.id
+                  thisData.edit.content = nodeData.label
+                }}
               >
-                {nodeData.label} {isNode(nodeData) && nodeData.saved ? '' : '*'}
+                {nodeData.label} {isNode(nodeData) && !nodeData.saved ? '*' : ''}
               </span>
             )
 
