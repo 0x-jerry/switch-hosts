@@ -221,11 +221,14 @@ export const ConfigList = defineComponent({
                 class='item-label'
                 v-model={thisData.edit.content}
                 onBlur={() => {
-                  nodeData.label = thisData.edit.content
-                  actions.saveConfig()
+                  thisData.edit.id = ''
                 }}
                 onKeydown={(e: KeyboardEvent) => {
-                  if (e.code === 'Enter') {
+                  if (e.key === 'Enter') {
+                    thisData.edit.id = ''
+                    nodeData.label = thisData.edit.content
+                    actions.saveConfig()
+                  } else if (e.key === 'Escape') {
                     thisData.edit.id = ''
                   }
                 }}
