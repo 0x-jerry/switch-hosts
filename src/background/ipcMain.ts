@@ -48,11 +48,11 @@ export const ipcActions = {
 
     const result = await switchHosts(newHostSource)
 
-    if (!result) {
+    if (result) {
+      actions.updateSource(sysHostsId, newHostSource)
+    } else {
       conf.files[sysHostsId] = oldHostSource
     }
-
-    actions.updateSource(sysHostsId, newHostSource)
 
     return result
   },
