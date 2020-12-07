@@ -4,7 +4,6 @@
 
 ![](./docs/screenshot.png)
 
-## TODO
+## TODO-V1.0.0
 
-- [ ] i18n
 - [ ] 远程配置
