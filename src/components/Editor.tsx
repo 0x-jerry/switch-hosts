@@ -74,7 +74,8 @@ function useEditor() {
   })
 
   ed.onKeyDown(async (e) => {
-    if (e.browserEvent.key === 's' && e.metaKey) {
+    // Save current schema
+    if (e.browserEvent.key === 's' && (e.metaKey || e.ctrlKey)) {
       const selectedNode = actions.getSelectedNode()
       if (!selectedNode) {
         return
