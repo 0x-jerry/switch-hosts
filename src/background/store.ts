@@ -37,11 +37,11 @@ export const actions = {
     const option: NotificationOption = {
       type: 'info',
       title: '',
-      content: ''
+      message: ''
     }
 
     if (typeof opt === 'string') {
-      option.content = opt
+      option.message = opt
     } else {
       Object.assign(option, opt)
     }

@@ -1,4 +1,5 @@
 import { Config, ConfigHostItem, ConfigNode, ConfigGroup } from '../define'
+import { uuid } from '../utils'
 
 export const sysHostsId = 'sys-hosts'
 export function isGroup(c: ConfigGroup | ConfigNode): c is ConfigGroup {
@@ -120,4 +121,24 @@ export function getParentGroup(conf: Config, node: ConfigNode): ConfigGroup | nu
   })
 
   return r
+}
+
+export function createConfigNode(label: string, isGroup: boolean): ConfigHostItem {
+  if (isGroup) {
+    return {
+      label,
+      id: uuid(),
+      mode: 'single',
+      children: []
+    }
+  } else {
+    const node = {
+      label,
+      id: uuid(),
+      checked: false,
+      readonly: false,
+      saved: true
+    }
+    return node
+  }
 }

@@ -2,10 +2,14 @@ import { defineComponent } from 'vue'
 import { isDebug } from '../const'
 import { useNewHostDialog } from '../dialogs/NewHostDialog'
 import { actions } from '../store'
+import { importConfig } from './configAction'
 import { ConfigList } from './ConfigList'
+import { useFileBox } from './hooks/filebox'
 
 export const Sidebar = defineComponent(() => {
   const { NewHostDialog, open } = useNewHostDialog()
+
+  const fileBox = useFileBox()
 
   return () => {
     const resetIcon = (
@@ -15,6 +19,32 @@ export const Sidebar = defineComponent(() => {
         underline={false}
         href='#'
         onClick={() => actions.resetConfig()}
+      />
+    )
+
+    const importIcon = (
+      <el-link
+        icon='toolbar-icon el-icon-upload2'
+        title='Import config'
+        underline={false}
+        href='#'
+        onClick={async () => {
+          try {
+            const txt = await fileBox.open()
+            importConfig(txt)
+            actions.notify({
+              type: 'success',
+              title: 'Import config',
+              message: 'Import successful!'
+            })
+          } catch (error) {
+            actions.notify({
+              type: 'error',
+              title: 'Import config error',
+              message: String(error)
+            })
+          }
+        }}
       />
     )
 
@@ -30,6 +60,7 @@ export const Sidebar = defineComponent(() => {
             onClick={open}
           />
           <div class='align-end'>
+            {importIcon}
             {isDebug && resetIcon}
             <el-link icon='toolbar-icon el-icon-info' title='About' underline={false} href='#' />
           </div>

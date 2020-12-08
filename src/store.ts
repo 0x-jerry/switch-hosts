@@ -11,6 +11,7 @@ import { Config, ConfigGroup, ConfigHostItem, ConfigNode, NotificationOption } f
 import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { ElNotification } from 'element-plus'
 import { uuid } from './utils'
+import { INotificationOptions } from 'element-plus/lib/el-notification/src/notification.type'
 
 export const confStore = reactive<Config>(window.__preload__.store)
 
@@ -101,6 +102,18 @@ export const actions = {
   },
   setPassword(password: string) {
     return ipcRenderer.invoke(IPC_EVENTS.SET_PASSWORD, password)
+  },
+  notify(opt: INotificationOptions) {
+    const option = Object.assign(
+      {
+        position: 'bottom-right',
+        duration: 1500,
+        showClose: true
+      },
+      opt
+    )
+
+    ElNotification(option)
   }
 }
 
@@ -117,13 +130,5 @@ ipcRenderer.on(IPC_RENDER_EVENTS.UPDATE_SOURCE, (_, id: string, source: string) 
 
 ipcRenderer.on(IPC_RENDER_EVENTS.NOTIFICATION, (_, opt: NotificationOption) => {
   console.log(opt)
-
-  ElNotification({
-    type: opt.type,
-    title: opt.title,
-    message: opt.content,
-    position: 'bottom-right',
-    duration: 1500,
-    showClose: true
-  })
+  actions.notify(opt)
 })

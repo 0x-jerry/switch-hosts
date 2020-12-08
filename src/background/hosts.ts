@@ -56,7 +56,7 @@ export async function switchHosts(hosts: string): Promise<boolean> {
     actions.notification({
       type: 'error',
       title: 'Switch hosts failed!',
-      content: error,
+      message: error,
       data: {
         hosts
       }

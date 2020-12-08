@@ -44,6 +44,6 @@ export type Config = ConfigV101
 export interface NotificationOption {
   type: 'success' | 'warning' | 'info' | 'error'
   title: string
-  content: string
+  message: string
   data?: any
 }
