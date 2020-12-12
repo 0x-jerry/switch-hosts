@@ -63,7 +63,8 @@ export const actions = {
       const newNode: ConfigNode = {
         ...node,
         id: uuid(),
-        checked: false
+        checked: false,
+        readonly: false
       }
 
       confStore.files[newNode.id] = confStore.files[node.id]
