@@ -10,6 +10,10 @@ app.whenReady().then(() => {
   const trayIconPath = path.join(__static, platform === 'win32' ? 'logo.ico' : 'logo.png')
   const tray = new Tray(trayIconPath)
 
+  tray.on('click', () => {
+    eventBus.emit(EVENTS.SHOW_WINDOW)
+  })
+
   globalStore.tray = tray
 
   eventBus.addListener(EVENTS.UPDATE_TRAY_MENU, () => updateTray())
