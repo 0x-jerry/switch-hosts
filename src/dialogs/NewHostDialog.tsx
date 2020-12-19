@@ -7,12 +7,12 @@ export function useNewHostDialog() {
   })
 
   const form = reactive({
-    name: 'Test',
+    name: '',
     isGroup: false
   })
 
   const resetForm = () => {
-    form.name = 'Test'
+    form.name = ''
     form.isGroup = false
   }
 
@@ -40,7 +40,7 @@ export function useNewHostDialog() {
         >
           <el-form label-position='right' label-width='80px' onSubmit={confirm}>
             <el-form-item label='Name:' required>
-              <el-input v-model={form.name} />
+              <el-input v-model={form.name} placeholder='Schema name' />
             </el-form-item>
             <el-form-item label='Schema:'>
               <el-radio-group v-model={form.isGroup}>
