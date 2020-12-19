@@ -1,5 +1,5 @@
 import { defineComponent, reactive, watchEffect, watch, nextTick } from 'vue'
-import { getConfigItem, getGroup, isNode, isGroup } from '../common/config'
+import { getConfigItem, getGroup, isNode, isGroup, sysHostsId } from '../common/config'
 import { ConfigHostItem, ConfigGroup, ConfigNode } from '../define'
 import { actions, confStore } from '../store'
 import cloneDeep from 'lodash/cloneDeep'
@@ -153,13 +153,21 @@ export const ConfigList = defineComponent({
             <el-icon class='item-icon el-icon-lock' style='cursor: not-allowed;' />
           )
 
-          if (isNode(nodeData)) {
-            const checkboxIcon = ConfigCheckbox(nodeData, node)
+          const isSystemHostNode = nodeData.id === sysHostsId
 
-            if (nodeData.readonly) {
+          if (isNode(nodeData)) {
+            if (isSystemHostNode) {
               icons.push(copyIcon, readonlyIcon)
             } else {
-              icons.push(deleteIcon, copyIcon, checkboxIcon)
+              icons.push(deleteIcon, copyIcon)
+
+              if (nodeData.readonly) {
+                icons.push(readonlyIcon)
+              }
+
+              const checkboxIcon = ConfigCheckbox(nodeData, node)
+
+              icons.push(checkboxIcon)
             }
           } else {
             const modeIcon = ConfigSingleModeIcon(nodeData)
@@ -173,7 +181,7 @@ export const ConfigList = defineComponent({
           }
 
           const labelIcon = isNode(nodeData) ? (
-            <el-icon class={nodeData.readonly ? 'el-icon-monitor' : 'el-icon-document'} />
+            <el-icon class={isSystemHostNode ? 'el-icon-monitor' : 'el-icon-document'} />
           ) : (
             <el-icon class={node.expanded ? 'el-icon-folder-opened' : 'el-icon-folder'} />
           )
