@@ -1,13 +1,15 @@
 import { app, Menu, MenuItem, MenuItemConstructorOptions, Tray } from 'electron'
 import path from 'path'
 import { isNode } from '../common'
-import { version } from '../const'
+import { platform, version } from '../const'
 import { ConfigNode, ConfigGroup } from '../define'
 import { eventBus, EVENTS } from './eventBus'
 import { actions, globalStore } from './store'
 
 app.whenReady().then(() => {
-  const tray = new Tray(path.join(__static, 'icon.png'))
+  const trayIconPath = path.join(__static, platform === 'win32' ? 'logo.ico' : 'logo.png')
+  const tray = new Tray(trayIconPath)
+
   globalStore.tray = tray
 
   eventBus.addListener(EVENTS.UPDATE_TRAY_MENU, () => updateTray())
