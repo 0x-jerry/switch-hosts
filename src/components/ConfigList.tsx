@@ -75,7 +75,10 @@ function ConfigCopyIcon(nodeData: ConfigHostItem) {
       title='Copy'
       underline={false}
       href='#'
-      onClick={() => actions.copyConfigNode(nodeData)}
+      onClick={() => {
+        actions.copyConfigNode(nodeData)
+        actions.saveConfig()
+      }}
     />
   )
 }
