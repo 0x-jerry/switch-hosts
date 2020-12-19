@@ -1,5 +1,4 @@
 import { defineComponent } from 'vue'
-import { isDebug } from '../const'
 import { useNewHostDialog } from '../dialogs/NewHostDialog'
 import { actions } from '../store'
 import { importConfig } from './configAction'
@@ -19,6 +18,16 @@ export const Sidebar = defineComponent(() => {
         underline={false}
         href='#'
         onClick={() => actions.resetConfig()}
+      />
+    )
+
+    const configFolderIcon = (
+      <el-link
+        icon='toolbar-icon el-icon-setting'
+        title='Open hosts config folder'
+        underline={false}
+        href='#'
+        onClick={() => actions.openConfigFolder()}
       />
     )
 
@@ -61,7 +70,8 @@ export const Sidebar = defineComponent(() => {
           />
           <div class='align-end'>
             {importIcon}
-            {isDebug && resetIcon}
+            {configFolderIcon}
+            {resetIcon}
             <el-link icon='toolbar-icon el-icon-info' title='About' underline={false} href='#' />
           </div>
         </div>

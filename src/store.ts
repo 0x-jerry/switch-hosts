@@ -8,7 +8,7 @@ import {
   sysHostsId
 } from './common/config'
 import { Config, ConfigGroup, ConfigHostItem, ConfigNode, NotificationOption } from './define'
-import { IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
+import { confPath, IPC_EVENTS, IPC_RENDER_EVENTS } from './const'
 import { ElNotification } from 'element-plus'
 import { uuid } from './utils'
 import { INotificationOptions } from 'element-plus/lib/el-notification/src/notification.type'
@@ -115,6 +115,9 @@ export const actions = {
     )
 
     ElNotification(option)
+  },
+  openConfigFolder() {
+    return ipcRenderer.invoke(IPC_EVENTS.OPEN_FOLDER, confPath)
   }
 }
 

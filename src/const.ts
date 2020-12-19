@@ -22,7 +22,8 @@ export enum IPC_EVENTS {
   GET_CONFIG = 'get-config',
   RESET_CONFIG = 'reset-config',
   SAVE_HOSTS = 'save-hosts',
-  SET_PASSWORD = 'set-password'
+  SET_PASSWORD = 'set-password',
+  OPEN_FOLDER = 'open-folder'
 }
 
 export enum IPC_RENDER_EVENTS {

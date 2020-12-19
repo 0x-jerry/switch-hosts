@@ -1,4 +1,4 @@
-import { ipcMain } from 'electron'
+import { ipcMain, shell } from 'electron'
 import { getConfig, resetConfig, saveConfig } from './config'
 import { Config } from '../define'
 import { IPC_EVENTS } from '../const'
@@ -59,6 +59,9 @@ export const ipcActions = {
   [IPC_EVENTS.SET_PASSWORD](password: string) {
     globalStore.password = password
     actions.saveHosts(globalStore.conf)
+  },
+  [IPC_EVENTS.OPEN_FOLDER](dir: string) {
+    shell.showItemInFolder(dir)
   }
 }
 
