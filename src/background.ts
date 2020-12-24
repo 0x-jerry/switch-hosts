@@ -1,4 +1,4 @@
-import { app, protocol, BrowserWindow } from 'electron'
+import { app, protocol, BrowserWindow, screen } from 'electron'
 import { createProtocol } from 'vue-cli-plugin-electron-builder/lib'
 import path from 'path'
 import './background/ipcMain'
@@ -14,7 +14,14 @@ protocol.registerSchemesAsPrivileged([
 
 eventBus.on(EVENTS.SHOW_WINDOW, () => {
   if (globalStore.win) {
-    globalStore.win.show()
+    const win = globalStore.win
+    // Workaround for show on current screen.
+
+    const { x, y } = screen.getCursorScreenPoint()
+    const currentDisplay = screen.getDisplayNearestPoint({ x, y })
+    win.setPosition(currentDisplay.workArea.x, currentDisplay.workArea.y)
+    win.center()
+    win.show()
   }
 })
 
