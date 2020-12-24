@@ -3,6 +3,7 @@ import { getConfigItem, getGroup, isNode, isGroup, sysHostsId } from '../common/
 import { ConfigHostItem, ConfigGroup, ConfigNode } from '../define'
 import { actions, confStore } from '../store'
 import cloneDeep from 'lodash/cloneDeep'
+import { ElMessageBox } from 'element-plus'
 
 function ConfigCheckbox(nodeData: ConfigNode, node: any) {
   return (
@@ -90,7 +91,9 @@ function ConfigDeleteIcon(nodeData: ConfigHostItem) {
       underline={false}
       title='Delete'
       href='#'
-      onClick={() => {
+      onClick={async () => {
+        await ElMessageBox.confirm('Are you sure to delete this schema ?', 'Delete Tip')
+
         actions.removeConfigNode(nodeData.id)
 
         const needSwitchHosts = isNode(nodeData)
