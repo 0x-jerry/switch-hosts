@@ -11,7 +11,9 @@ app.whenReady().then(() => {
   const tray = new Tray(trayIconPath)
 
   tray.on('click', () => {
-    eventBus.emit(EVENTS.SHOW_WINDOW)
+    if (platform === 'win32') {
+      eventBus.emit(EVENTS.SHOW_WINDOW)
+    }
   })
 
   globalStore.tray = tray
