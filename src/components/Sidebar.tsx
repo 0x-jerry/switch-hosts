@@ -1,3 +1,4 @@
+import { ElMessageBox } from 'element-plus'
 import { defineComponent } from 'vue'
 import { useNewHostDialog } from '../dialogs/NewHostDialog'
 import { actions } from '../store'
@@ -17,7 +18,14 @@ export const Sidebar = defineComponent(() => {
         title='Reset hosts config'
         underline={false}
         href='#'
-        onClick={() => actions.resetConfig()}
+        onClick={async () => {
+          await ElMessageBox.confirm(
+            'Are you sure to reset config, all exist config will lost?',
+            'Reset Config Tip'
+          )
+
+          actions.resetConfig()
+        }}
       />
     )
 
