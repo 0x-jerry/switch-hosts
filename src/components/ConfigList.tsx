@@ -186,14 +186,17 @@ export const ConfigList = defineComponent({
             icons.unshift(<div class='noop' />)
           }
 
-          const labelIcon = isNode(nodeData) ? (
+          const labelIcon = isNode(nodeData)
+            ? (
             <el-icon class={isSystemHostNode ? 'el-icon-monitor' : 'el-icon-document'} />
-          ) : (
+              )
+            : (
             <el-icon class={node.expanded ? 'el-icon-folder-opened' : 'el-icon-folder'} />
-          )
+              )
 
           const labelComp =
-            thisData.edit.id === nodeData.id ? (
+            thisData.edit.id === nodeData.id
+              ? (
               <input
                 ref={(e) => (thisData.edit.ref = e)}
                 class='item-label'
@@ -211,7 +214,8 @@ export const ConfigList = defineComponent({
                   }
                 }}
               />
-            ) : (
+                )
+              : (
               <span
                 class='item-label'
                 title={nodeData.label}
@@ -226,7 +230,7 @@ export const ConfigList = defineComponent({
               >
                 {nodeData.label} {isNode(nodeData) && !nodeData.saved ? '*' : ''}
               </span>
-            )
+                )
 
           return (
             <div class='config-item'>
